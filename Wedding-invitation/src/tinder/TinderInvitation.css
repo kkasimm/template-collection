@@ -1,0 +1,868 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.tinder-app {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  background-color: #0d0d0d;
+  color: #fff;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* LOADING SCREEN */
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #fd297b, #ff655b);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.loading-flame {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.loading-text {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 1px;
+  font-weight: 500;
+}
+
+/* SHARED SECTION STYLES */
+.section-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #fd297b;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.section-heading {
+  font-size: clamp(24px, 5vw, 34px);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  margin-bottom: 12px;
+}
+
+.section-sub {
+  font-size: 13px;
+  color: #9b9b9b;
+  margin-bottom: 32px;
+}
+
+/* SECTION SWIPE */
+.section-swipe {
+  min-height: 100vh;
+  padding: 60px 24px 40px;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.swipe-stack {
+  position: relative;
+  height: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swipe-card {
+  position: absolute;
+  width: 100%;
+  max-width: 340px;
+  height: 460px;
+  background: #1a1a1a;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  cursor: grab;
+  display: flex;
+  flex-direction: column;
+}
+
+.swipe-card:active {
+  cursor: grabbing;
+}
+
+.swipe-card-photo {
+  flex: 1;
+  background: linear-gradient(135deg, #fd297b, #ff655b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 100px;
+  position: relative;
+}
+
+.swipe-card-gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75), transparent);
+}
+
+.swipe-card-info {
+  padding: 16px 20px 20px;
+  background: #1a1a1a;
+}
+
+.swipe-card-info h3 {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.swipe-card-bio {
+  font-size: 12px;
+  color: #b3b3b3;
+  margin-bottom: 10px;
+}
+
+.swipe-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.swipe-tag {
+  font-size: 10px;
+  background: rgba(253, 41, 123, 0.15);
+  color: #fd297b;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.swipe-card-food {
+  font-size: 11px;
+  color: #9b9b9b;
+}
+
+.swipe-empty {
+  font-size: 14px;
+  color: #9b9b9b;
+  text-align: center;
+}
+
+.swipe-hint-row {
+  display: flex;
+  justify-content: space-between;
+  max-width: 340px;
+  margin: 16px auto 0;
+  padding: 0 20px;
+}
+
+.hint-nope {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ff4458;
+  letter-spacing: 0.5px;
+}
+
+.hint-like {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1db954;
+  letter-spacing: 0.5px;
+}
+
+/* MATCH OVERLAY */
+.match-overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(253, 41, 123, 0.97),
+    rgba(255, 101, 91, 0.97)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 24px;
+}
+
+.match-content {
+  text-align: center;
+}
+
+.match-title {
+  font-size: clamp(32px, 9vw, 56px);
+  font-weight: 900;
+  font-style: italic;
+  color: #fff;
+  margin-bottom: 12px;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.match-sub {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 32px;
+}
+
+.match-avatars {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.match-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 3px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+}
+
+.match-heart {
+  font-size: 28px;
+  animation: heart-pulse 1s ease infinite;
+}
+
+@keyframes heart-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+.match-continue-btn {
+  background: #fff;
+  color: #fd297b;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 30px;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  transition: transform 0.2s ease;
+}
+
+.match-continue-btn:hover {
+  transform: scale(1.05);
+}
+
+/* SECTION STORY (CHAT) */
+.section-story {
+  padding: 80px 24px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.chat-window {
+  background: #141414;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chat-bubble-row {
+  display: flex;
+}
+
+.chat-bubble-row.left {
+  justify-content: flex-start;
+}
+
+.chat-bubble-row.right {
+  justify-content: flex-end;
+}
+
+.chat-bubble {
+  max-width: 75%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 13px;
+  line-height: 1.5;
+  position: relative;
+}
+
+.bubble-groom {
+  background: #262626;
+  color: #fff;
+  border-bottom-left-radius: 4px;
+}
+
+.bubble-bride {
+  background: linear-gradient(135deg, #fd297b, #ff655b);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-time {
+  display: block;
+  font-size: 9px;
+  opacity: 0.6;
+  margin-top: 4px;
+  text-align: right;
+}
+
+/* SECTION DETAIL */
+.section-detail {
+  padding: 80px 24px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.detail-card {
+  background: #141414;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 28px;
+  margin-top: 24px;
+}
+
+.detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.detail-row:first-child {
+  padding-top: 0;
+}
+
+.detail-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(253, 41, 123, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.detail-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #9b9b9b;
+  margin-bottom: 4px;
+}
+
+.detail-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.4;
+}
+
+.detail-sub {
+  font-size: 12px;
+  color: #9b9b9b;
+  margin-top: 2px;
+}
+
+.maps-btn {
+  display: inline-block;
+  margin-top: 12px;
+  background: linear-gradient(135deg, #fd297b, #ff655b);
+  color: #fff;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 20px;
+  transition: transform 0.2s ease;
+}
+
+.maps-btn:hover {
+  transform: scale(1.04);
+}
+
+/* SECTION RSVP */
+.section-rsvp {
+  padding: 80px 24px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.rsvp-swipe-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rsvp-swipe-card {
+  width: 100%;
+  max-width: 320px;
+  background: linear-gradient(135deg, #fd297b, #ff655b);
+  border-radius: 20px;
+  padding: 40px 24px;
+  text-align: center;
+  cursor: grab;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.rsvp-swipe-card:active {
+  cursor: grabbing;
+}
+
+.rsvp-card-emoji {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.rsvp-swipe-card h3 {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.rsvp-swipe-card p {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+/* CONFIRM MODAL */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1500;
+  padding: 20px;
+}
+
+.confirm-modal {
+  background: #141414;
+  border-radius: 20px;
+  padding: 32px 24px;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.confirm-emoji {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.confirm-modal h3 {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.confirm-text {
+  font-size: 12px;
+  color: #9b9b9b;
+  margin-bottom: 20px;
+}
+
+.rsvp-input {
+  width: 100%;
+  background: #262626;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #fff;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 13px;
+  margin-bottom: 12px;
+  outline: none;
+}
+
+.rsvp-input:focus {
+  border-color: #fd297b;
+}
+
+.rsvp-textarea {
+  width: 100%;
+  background: #262626;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #fff;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 13px;
+  margin-bottom: 16px;
+  outline: none;
+  resize: none;
+  height: 70px;
+}
+
+.rsvp-textarea:focus {
+  border-color: #fd297b;
+}
+
+.confirm-btn-row {
+  display: flex;
+  gap: 10px;
+}
+
+.confirm-btn-cancel {
+  flex: 1;
+  padding: 12px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+.confirm-btn-submit {
+  flex: 1;
+  padding: 12px;
+  border-radius: 30px;
+  border: none;
+  background: linear-gradient(135deg, #fd297b, #ff655b);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+.rsvp-success {
+  text-align: center;
+  padding: 32px 0;
+}
+
+.rsvp-success-emoji {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.rsvp-success h3 {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* WISHLIST */
+.wishlist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 40px;
+  margin-bottom: 12px;
+}
+
+.wishlist-title {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.wishlist-count {
+  font-size: 11px;
+  color: #9b9b9b;
+  background: #262626;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.wishlist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wish-item {
+  display: flex;
+  gap: 12px;
+  background: #141414;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.wish-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fd297b, #ff655b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.wish-content {
+  flex: 1;
+  overflow: hidden;
+}
+
+.wish-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.wish-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.wish-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+
+.wish-badge.hadir {
+  background: rgba(29, 185, 84, 0.15);
+  color: #1db954;
+}
+
+.wish-badge.tidak {
+  background: rgba(255, 255, 255, 0.06);
+  color: #9b9b9b;
+}
+
+.wish-message {
+  font-size: 12px;
+  color: #b3b3b3;
+  font-style: italic;
+  line-height: 1.6;
+  margin-bottom: 6px;
+}
+
+.wish-time {
+  font-size: 10px;
+  color: #555;
+}
+
+/* SECTION GIFT */
+.section-gift {
+  padding: 80px 24px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.gift-card {
+  background: #141414;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.gift-icon {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.gift-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #fd297b;
+  margin-bottom: 6px;
+}
+
+.gift-value {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.gift-sub {
+  font-size: 12px;
+  color: #9b9b9b;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.copy-btn {
+  background: linear-gradient(135deg, #fd297b, #ff655b);
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  transition: transform 0.2s ease;
+}
+
+.copy-btn:hover {
+  transform: scale(1.03);
+}
+
+/* SECTION CLOSING */
+.section-closing {
+  padding: 80px 24px 120px;
+  max-width: 560px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.closing-emoji {
+  font-size: 56px;
+  margin-bottom: 24px;
+}
+
+.closing-quote {
+  font-size: 13px;
+  color: #9b9b9b;
+  font-style: italic;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+.closing-title {
+  font-size: clamp(20px, 5vw, 28px);
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.closing-date {
+  font-size: 13px;
+  color: #fd297b;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.closing-footer {
+  margin-top: 50px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 12px;
+  color: #555;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+  .swipe-card {
+    height: 420px;
+  }
+  .detail-card,
+  .gift-card {
+    padding: 20px;
+  }
+  .confirm-modal {
+    padding: 24px 20px;
+  }
+}
+
+/* ===== IMAGE OVERRIDES ===== */
+.swipe-card-photo {
+  position: relative;
+  overflow: hidden;
+}
+
+.swipe-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.match-avatar {
+  overflow: hidden;
+}
+
+.match-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.match-heart {
+  animation: heart-pulse 1s ease infinite;
+}
+
+.rsvp-card-icon {
+  margin-bottom: 16px;
+}
+
+.gift-icon {
+  margin-bottom: 10px;
+  display: block;
+}
+
+.closing-photo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto 24px;
+  border: 3px solid #FD297B;
+}
+
+.closing-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.maps-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hint-nope, .hint-like {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wishlist-title {
+  display: inline-flex;
+  align-items: center;
+}

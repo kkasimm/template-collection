@@ -1,88 +1,28 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
-import musicFile from "../assets/music.mp3";
+import {
+  Music2,
+  Play,
+  Pause,
+  Calendar,
+  MapPin,
+  Shirt,
+  Mic2,
+  BadgeCheck,
+  Disc3,
+  ImageIcon,
+  Package,
+  Landmark,
+  Smartphone,
+  Copy,
+  Check,
+} from "lucide-react";
+import { invitationData } from "../data/invitationData";
 import "./SpotifyInvitation.css";
 
-// ════════════════════════════════════════════════════════════════════════════
-// DATA
-// ════════════════════════════════════════════════════════════════════════════
+const GALLERY_COUNT = 6;
 
-const TRACKS = [
-  {
-    number: "01",
-    title: "Pertemuan Pertama",
-    lyric: "Seperti playlist baru yang langsung masuk ke hati",
-    duration: "3:24",
-    active: false,
-  },
-  {
-    number: "02",
-    title: "Jatuh Tanpa Sadar",
-    lyric: "Lagu favoritmu jadi lagu favoritku juga",
-    duration: "4:01",
-    active: true,
-  },
-  {
-    number: "03",
-    title: "Bertahan di Sisi",
-    lyric: "Repeat mode — selalu ingin diputar lagi",
-    duration: "3:47",
-    active: false,
-  },
-  {
-    number: "04",
-    title: "Lamaran",
-    lyric: "Track terbaik dalam album hidup ini",
-    duration: "5:12",
-    active: false,
-  },
-  {
-    number: "05",
-    title: "Selamanya",
-    lyric: "Tidak ada skip, tidak ada pause — hanya play",
-    duration: "∞",
-    active: false,
-  },
-];
-
-const GALLERY_ITEMS = [
-  { emoji: "💑", large: true },
-  { emoji: "🌹", large: false },
-  { emoji: "💍", large: false },
-  { emoji: "🎶", large: false },
-  { emoji: "✨", large: false },
-  { emoji: "🕊️", large: false },
-];
-
-const INITIAL_WISHES = [
-  {
-    id: 1,
-    name: "Budi Santoso",
-    message: "Semoga menjadi keluarga yang sakinah mawaddah warahmah 🤲",
-    attend: "hadir",
-    time: "2 hari lalu",
-  },
-  {
-    id: 2,
-    name: "Sari Dewi",
-    message: "Barakallahu lakuma wa baraka alaikuma wa jama'a bainakuma fi khair 💕",
-    attend: "hadir",
-    time: "1 hari lalu",
-  },
-  {
-    id: 3,
-    name: "Andi Pratama",
-    message: "Selamat menempuh hidup baru! Semoga langgeng sampai kakek nenek 🎉",
-    attend: "tidak",
-    time: "5 jam lalu",
-  },
-];
-
-const STORAGE_KEY = "rhapsody_wishes";
-
-// ════════════════════════════════════════════════════════════════════════════
 // HELPERS
-// ════════════════════════════════════════════════════════════════════════════
 
 function formatTime(isoString) {
   const diff = Math.floor((Date.now() - new Date(isoString)) / 1000);
@@ -98,11 +38,25 @@ function formatSeconds(s) {
   return `${m}:${sec.toString().padStart(2, "0")}`;
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-// SUB-COMPONENTS
-// ════════════════════════════════════════════════════════════════════════════
+async function copyToClipboard(text, setCopiedKey, key) {
+  try {
+    await navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2000);
+  } catch {
+    console.warn("Gagal menyalin ke clipboard");
+  }
+}
 
-/** Animates children when they enter the viewport */
+function giftIconFor(type) {
+  if (type === "address") return Package;
+  if (type === "bank") return Landmark;
+  if (type === "ewallet") return Smartphone;
+  return Package;
+}
+
+// SUB-COMPONENTS
+
 function FadeUp({ children, delay = 0, className = "" }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
@@ -123,6 +77,7 @@ function FadeUp({ children, delay = 0, className = "" }) {
 /** Floating Spotify-style mini player — hidden while opener is in view */
 function MusicPlayer({ audioRef, isPlaying, setIsPlaying, visible }) {
   const [progress, setProgress] = useState(0);
+  const { music } = invitationData;
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -157,26 +112,19 @@ function MusicPlayer({ audioRef, isPlaying, setIsPlaying, visible }) {
           exit={{ opacity: 0, y: 40 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="album-thumb">🎵</div>
+          <div className="album-thumb">
+            <Music2 size={16} />
+          </div>
           <div className="track-info">
-            <div className="track-name">Rhapsody JKT48</div>
-            <div className="track-artist">Wedding Playlist · 2025</div>
+            <div className="track-name">{music.title}</div>
+            <div className="track-artist">{music.artist}</div>
           </div>
           <button
             className="play-btn"
             onClick={togglePlay}
             aria-label={isPlaying ? "Pause" : "Play"}
           >
-            {isPlaying ? (
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <rect x="6" y="4" width="4" height="16" rx="1" />
-                <rect x="14" y="4" width="4" height="16" rx="1" />
-              </svg>
-            ) : (
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 5.14v14l11-7-11-7z" />
-              </svg>
-            )}
+            {isPlaying ? <Pause size={14} fill="#000" /> : <Play size={14} fill="#000" />}
           </button>
           <div className="progress-bar-wrap">
             <div className="progress-bar-fill" style={{ width: `${progress}%` }} />
@@ -188,13 +136,14 @@ function MusicPlayer({ audioRef, isPlaying, setIsPlaying, visible }) {
 }
 
 /** Section 1 — Opening "Now Playing" screen */
-function SectionOpener({ audioRef, onSectionExit }) {
-  const fillRef = useRef(null);
+function SectionOpener({ audioRef, isPlaying, setIsPlaying, onSectionExit }) {
   const timeRef = useRef(null);
   const sectionRef = useRef(null);
   const [duration, setDuration] = useState("∞");
+  const [progress, setProgress] = useState(0);
 
-  // Ambil nama tamu dari URL ?nama=...
+  const { couple, media, music } = invitationData;
+
   const params = new URLSearchParams(window.location.search);
   const guestName = params.get("nama") || null;
 
@@ -212,7 +161,6 @@ function SectionOpener({ audioRef, onSectionExit }) {
     },
   };
 
-  // Sync progress bar & waktu dengan audio asli
   useEffect(() => {
     const audio = audioRef?.current;
     if (!audio) return;
@@ -222,7 +170,7 @@ function SectionOpener({ audioRef, onSectionExit }) {
       const current = audio.currentTime || 0;
       const pct = dur ? (current / dur) * 100 : 0;
 
-      if (fillRef.current) fillRef.current.style.width = `${pct}%`;
+      setProgress(pct);
       if (timeRef.current) timeRef.current.textContent = formatSeconds(current);
     };
 
@@ -230,7 +178,6 @@ function SectionOpener({ audioRef, onSectionExit }) {
     return () => audio.removeEventListener("timeupdate", update);
   }, [audioRef]);
 
-  // Ambil durasi asli lagu
   useEffect(() => {
     const audio = audioRef?.current;
     if (!audio) return;
@@ -243,7 +190,6 @@ function SectionOpener({ audioRef, onSectionExit }) {
     return () => audio.removeEventListener("loadedmetadata", onLoaded);
   }, [audioRef]);
 
-  // Sembunyikan MusicPlayer saat opener masih terlihat
   useEffect(() => {
     const section = sectionRef.current;
     if (!section || !onSectionExit) return;
@@ -256,6 +202,17 @@ function SectionOpener({ audioRef, onSectionExit }) {
     observer.observe(section);
     return () => observer.disconnect();
   }, [onSectionExit]);
+
+  const togglePlay = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (isPlaying) {
+      audio.pause();
+    } else {
+      audio.play().catch(() => {});
+    }
+    setIsPlaying(!isPlaying);
+  };
 
   return (
     <section className="section-opener" ref={sectionRef}>
@@ -284,13 +241,7 @@ function SectionOpener({ audioRef, onSectionExit }) {
           whileHover={{ scale: 1.03 }}
           transition={{ type: "spring", stiffness: 300 }}
         >
-          💑
-        </motion.div>
-
-        <motion.div variants={item} className="opener-couple">
-          Rizki Pratama
-          <span className="opener-couple-amp">&</span>
-          Aulia Zahra
+          <img src={media.photos.couple} alt="Couple" className="opener-cover-img" />
         </motion.div>
 
         <motion.div variants={item} className="opener-now-playing">
@@ -298,21 +249,32 @@ function SectionOpener({ audioRef, onSectionExit }) {
         </motion.div>
 
         <motion.h1 variants={item} className="opener-title">
-          Rhapsody<br />
-          <span style={{ color: "#1DB954" }}>JKT48</span>
+          {couple.groom.name}
+          <br />
+          <span style={{ color: "#1DB954" }}>& {couple.bride.name}</span>
         </motion.h1>
 
         <motion.p variants={item} className="opener-subtitle">
-          A love story, written in songs
+          {music.subtitle}
         </motion.p>
 
-        <motion.div variants={item} className="opener-progress">
-          <div className="opener-progress-bar">
-            <div ref={fillRef} className="opener-progress-fill" />
-          </div>
-          <div className="opener-progress-times">
-            <span ref={timeRef}>0:00</span>
-            <span>{duration}</span>
+        <motion.div variants={item} className="opener-player">
+          <button
+            className="opener-play-btn"
+            onClick={togglePlay}
+            aria-label={isPlaying ? "Pause" : "Play"}
+          >
+            {isPlaying ? <Pause size={16} fill="#000" /> : <Play size={16} fill="#000" />}
+          </button>
+
+          <div className="opener-progress">
+            <div className="opener-progress-bar">
+              <div className="opener-progress-fill" style={{ width: `${progress}%` }} />
+            </div>
+            <div className="opener-progress-times">
+              <span ref={timeRef}>0:00</span>
+              <span>{duration}</span>
+            </div>
           </div>
         </motion.div>
       </motion.div>
@@ -332,6 +294,8 @@ function SectionOpener({ audioRef, onSectionExit }) {
 
 /** Section 2 — Tracklist / Our Story */
 function SectionStory() {
+  const { tracks } = invitationData.music;
+
   return (
     <section className="section-story">
       <FadeUp>
@@ -340,11 +304,11 @@ function SectionStory() {
       </FadeUp>
 
       <div className="tracklist">
-        {TRACKS.map((track, i) => (
+        {tracks.map((track, i) => (
           <FadeUp key={track.number} delay={i * 0.08}>
             <div className={`track-item${track.active ? " active" : ""}`}>
               <span className="track-number">
-                {track.active ? "▶" : track.number}
+                {track.active ? <Play size={11} fill="#1DB954" color="#1DB954" /> : track.number}
               </span>
               <div className="track-content">
                 <div className="track-title">{track.title}</div>
@@ -361,6 +325,8 @@ function SectionStory() {
 
 /** Section 3 — Detail Acara */
 function SectionDetail() {
+  const { event, couple } = invitationData;
+
   return (
     <section className="section-detail">
       <FadeUp>
@@ -371,37 +337,54 @@ function SectionDetail() {
       <FadeUp delay={0.1}>
         <div className="album-meta-card">
           <div className="meta-row">
-            <div className="meta-icon">📅</div>
+            <div className="meta-icon"><Calendar size={16} color="#1DB954" /></div>
             <div>
               <div className="meta-label">Release Date</div>
-              <div className="meta-value">Sabtu, 14 Juni 2025</div>
-              <div className="meta-sub">Akad: 08.00 WIB · Resepsi: 11.00 WIB</div>
+              <div className="meta-value">{event.date.full}</div>
+              <div className="meta-sub">
+                {event.schedule.map((s, i) => (
+                  <span key={i}>
+                    {s.label}: {s.time}
+                    {i < event.schedule.length - 1 ? " · " : ""}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
 
           <div className="meta-row">
-            <div className="meta-icon">📍</div>
-            <div>
+            <div className="meta-icon"><MapPin size={16} color="#1DB954" /></div>
+            <div style={{ flex: 1 }}>
               <div className="meta-label">Venue</div>
-              <div className="meta-value">Gedung Serbaguna Harmoni</div>
-              <div className="meta-sub">Jl. Sudirman No. 88, Jakarta Pusat</div>
+              <div className="meta-value">{event.venue.name}</div>
+              <div className="meta-sub">{event.venue.address}</div>
+              {event.venue.mapsUrl && (
+                <a
+                  href={event.venue.mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="maps-btn"
+                >
+                  <MapPin size={13} /> Buka di Google Maps
+                </a>
+              )}
             </div>
           </div>
 
           <div className="meta-row">
-            <div className="meta-icon">👔</div>
+            <div className="meta-icon"><Shirt size={16} color="#1DB954" /></div>
             <div>
               <div className="meta-label">Dress Code</div>
-              <div className="meta-value">Sage Green & Dusty Rose</div>
-              <div className="meta-sub">Formal attire preferred</div>
+              <div className="meta-value">{event.dressCode.spotify}</div>
+              <div className="meta-sub">{event.dressCode.note}</div>
             </div>
           </div>
 
           <div className="meta-row">
-            <div className="meta-icon">🎵</div>
+            <div className="meta-icon"><Mic2 size={16} color="#1DB954" /></div>
             <div>
               <div className="meta-label">Featured Artists</div>
-              <div className="meta-value">Rizki Pratama & Aulia Zahra</div>
+              <div className="meta-value">{couple.fullDisplayName}</div>
               <div className="meta-sub">Produced by: Keluarga Besar Kedua Mempelai</div>
             </div>
           </div>
@@ -422,18 +405,13 @@ function SectionGallery() {
 
       <FadeUp delay={0.1}>
         <div className="gallery-grid">
-          {GALLERY_ITEMS.map((galleryItem, i) => (
-            <div key={i} className={`gallery-item${galleryItem.large ? " large" : ""}`}>
-              <span style={{ fontSize: galleryItem.large ? "64px" : "32px" }}>
-                {galleryItem.emoji}
-              </span>
+          {Array.from({ length: GALLERY_COUNT }).map((_, i) => (
+            <div key={i} className={`gallery-item${i === 0 ? " large" : ""}`}>
+              <ImageIcon size={i === 0 ? 40 : 24} color="#535353" />
               <div className="gallery-overlay" />
             </div>
           ))}
         </div>
-        <p style={{ textAlign: "center", fontSize: "11px", color: "#535353", marginTop: "12px" }}>
-          Ganti emoji dengan foto — tambahkan tag &lt;img&gt; di dalam gallery-item
-        </p>
       </FadeUp>
     </section>
   );
@@ -441,6 +419,9 @@ function SectionGallery() {
 
 /** Section 5 — RSVP + Wishlist (persisted via localStorage) */
 function SectionRSVP() {
+  const { storageKey, initialWishes } = invitationData.rsvp.spotify;
+  const { couple, media } = invitationData;
+
   const [selected, setSelected] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [name, setName] = useState("");
@@ -449,16 +430,17 @@ function SectionRSVP() {
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = localStorage.getItem(storageKey);
       if (stored) {
         setWishes(JSON.parse(stored));
       } else {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_WISHES));
-        setWishes(INITIAL_WISHES);
+        localStorage.setItem(storageKey, JSON.stringify(initialWishes));
+        setWishes(initialWishes);
       }
     } catch {
-      setWishes(INITIAL_WISHES);
+      setWishes(initialWishes);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSubmit = () => {
@@ -476,7 +458,7 @@ function SectionRSVP() {
     setWishes(updated);
 
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      localStorage.setItem(storageKey, JSON.stringify(updated));
     } catch {
       console.warn("Gagal menyimpan ke localStorage");
     }
@@ -491,15 +473,14 @@ function SectionRSVP() {
         <h2 className="section-heading">Konfirmasi Kehadiran</h2>
       </FadeUp>
 
-      {/* ── FORM CARD ── */}
       <FadeUp delay={0.1}>
         <div className="rsvp-card">
-          <div className="rsvp-avatar">💑</div>
-          <div className="rsvp-name">Rizki & Aulia</div>
+          <div className="rsvp-avatar">
+            <img src={media.photos.couple} alt="Couple" className="rsvp-avatar-img" />
+          </div>
+          <div className="rsvp-name">{couple.displayName}</div>
           <div className="rsvp-verified">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-            </svg>
+            <BadgeCheck size={14} color="#1DB954" />
             Verified Artist
           </div>
 
@@ -525,9 +506,9 @@ function SectionRSVP() {
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               style={{ textAlign: "center", padding: "16px 0" }}
             >
-              <div style={{ fontSize: "40px", marginBottom: "12px" }}>🎵</div>
+              <Disc3 size={40} color="#1DB954" style={{ marginBottom: "12px" }} />
               <div style={{ fontSize: "16px", fontWeight: 700, marginBottom: "6px" }}>
-                {selected === "hadir" ? "Yeay, sampai jumpa!" : "Terima kasih sudah memberi tahu kami 🙏"}
+                {selected === "hadir" ? "Yeay, sampai jumpa!" : "Terima kasih sudah memberi tahu kami"}
               </div>
               <div style={{ fontSize: "12px", color: "#A7A7A7" }}>
                 Ucapanmu sudah ditambahkan ke playlist kami
@@ -546,18 +527,18 @@ function SectionRSVP() {
                   className={`rsvp-option${selected === "hadir" ? " selected" : ""}`}
                   onClick={() => setSelected("hadir")}
                 >
-                  ✅ Hadir
+                  Hadir
                 </button>
                 <button
                   className={`rsvp-option${selected === "tidak" ? " selected" : ""}`}
                   onClick={() => setSelected("tidak")}
                 >
-                  ❌ Tidak Hadir
+                  Tidak Hadir
                 </button>
               </div>
               <textarea
                 className="rsvp-textarea"
-                placeholder="Titip doa & ucapan untuk kami... 🎶"
+                placeholder="Titip doa & ucapan untuk kami..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
               />
@@ -569,17 +550,16 @@ function SectionRSVP() {
                   cursor: !name.trim() || selected === null ? "not-allowed" : "pointer",
                 }}
               >
-                Add to Queue ♫
+                Add to Queue
               </button>
             </>
           )}
         </div>
       </FadeUp>
 
-      {/* ── WISH LIST ── */}
       <FadeUp delay={0.15}>
         <div className="wishlist-header">
-          <span className="wishlist-title">🎶 Playlist Ucapan</span>
+          <span className="wishlist-title">Playlist Ucapan</span>
           <span className="wishlist-count">{wishes.length} ucapan</span>
         </div>
       </FadeUp>
@@ -602,7 +582,7 @@ function SectionRSVP() {
                 <div className="wish-header">
                   <span className="wish-name">{wish.name}</span>
                   <span className={`wish-badge ${wish.attend === "hadir" ? "hadir" : "tidak"}`}>
-                    {wish.attend === "hadir" ? "✅ Hadir" : "❌ Tidak Hadir"}
+                    {wish.attend === "hadir" ? "Hadir" : "Tidak Hadir"}
                   </span>
                 </div>
                 <p className="wish-message">"{wish.message}"</p>
@@ -618,8 +598,55 @@ function SectionRSVP() {
   );
 }
 
-/** Section 6 — Closing */
+/** Section 6 — Kirim Hadiah (Spotify-themed) */
+function SectionGift() {
+  const { gifts } = invitationData;
+  const [copiedKey, setCopiedKey] = useState(null);
+
+  if (!gifts.enabled || !gifts.methods?.length) return null;
+
+  return (
+    <section className="section-gift">
+      <FadeUp>
+        <div className="section-eyebrow">Bonus Track</div>
+        <h2 className="section-heading">{gifts.title}</h2>
+        <p className="gift-note">{gifts.note}</p>
+      </FadeUp>
+
+      {gifts.methods.map((method, i) => {
+        const Icon = giftIconFor(method.type);
+        return (
+          <FadeUp key={method.id} delay={0.1 + i * 0.05}>
+            <div className="gift-card">
+              <div className="gift-icon-wrap">
+                <Icon size={20} color="#1DB954" />
+              </div>
+              <div className="gift-label">{method.label}</div>
+              <div className="gift-value">{method.title}</div>
+              <div className="gift-sub">{method.detail}</div>
+              <button
+                className="gift-copy-btn"
+                onClick={() => copyToClipboard(method.copyText, setCopiedKey, method.id)}
+              >
+                {copiedKey === method.id ? (
+                  <><Check size={13} /> Tersalin!</>
+                ) : (
+                  <><Copy size={13} /> {method.copyButtonLabel}</>
+                )}
+              </button>
+            </div>
+          </FadeUp>
+        );
+      })}
+    </section>
+  );
+}
+
+/** Section 7 — Closing */
 function SectionClosing({ isPlaying }) {
+  const { event, couple } = invitationData;
+  const { music } = invitationData;
+
   return (
     <section className="section-closing">
       <FadeUp>
@@ -635,26 +662,25 @@ function SectionClosing({ isPlaying }) {
 
       <FadeUp delay={0.15}>
         <h2 className="closing-title">Sampai Jumpa di Hari Bahagia Kami</h2>
-        <div className="closing-date">14 · 06 · 2025</div>
+        <div className="closing-date">{event.date.short}</div>
       </FadeUp>
 
       <FadeUp delay={0.2}>
         <div className="closing-footer">
-          <div className="closing-footer-logo">♫ Rhapsody JKT48 ♫</div>
+          <div className="closing-footer-logo">{music.title}</div>
         </div>
       </FadeUp>
     </section>
   );
 }
 
-// ════════════════════════════════════════════════════════════════════════════
 // MAIN COMPONENT (default export)
-// ════════════════════════════════════════════════════════════════════════════
 
 export default function SpotifyInvitation() {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showPlayer, setShowPlayer] = useState(false);
+  const { music } = invitationData;
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -683,13 +709,19 @@ export default function SpotifyInvitation() {
 
   return (
     <div className="app">
-      <audio ref={audioRef} src={musicFile} preload="auto" />
+      <audio ref={audioRef} src={music.file} preload="auto" />
 
-      <SectionOpener audioRef={audioRef} onSectionExit={setShowPlayer} />
+      <SectionOpener
+        audioRef={audioRef}
+        isPlaying={isPlaying}
+        setIsPlaying={setIsPlaying}
+        onSectionExit={setShowPlayer}
+      />
       <SectionStory />
       <SectionDetail />
       <SectionGallery />
       <SectionRSVP />
+      <SectionGift />
       <SectionClosing isPlaying={isPlaying} />
 
       <MusicPlayer

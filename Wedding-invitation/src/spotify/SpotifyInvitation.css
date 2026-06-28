@@ -14,7 +14,7 @@
   min-height: 100vh;
 }
 
-/* ===== FLOATING MUSIC PLAYER ===== */
+/* FLOATING MUSIC PLAYER */
 .music-player {
   position: fixed;
   bottom: 24px;
@@ -110,7 +110,38 @@
   transition: width 0.5s linear;
 }
 
-/* ===== SECTION OPENER ===== */
+/* OPENER PLAYER (play/pause + progress) */
+.opener-player {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 240px;
+}
+
+.opener-play-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #1DB954;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.opener-play-btn:hover {
+  background: #1ed760;
+  transform: scale(1.06);
+}
+
+.opener-progress {
+  flex: 1;
+}
+
+/* SECTION OPENER */
 .section-opener {
   min-height: 100vh;
   display: flex;
@@ -312,7 +343,7 @@
   }
 }
 
-/* ===== SECTION STORY ===== */
+/* SECTION STORY */
 .section-story {
   padding: 80px 24px;
   max-width: 640px;
@@ -404,7 +435,7 @@
   flex-shrink: 0;
 }
 
-/* ===== SECTION DETAIL ===== */
+/* SECTION DETAIL */
 .section-detail {
   padding: 80px 24px;
   max-width: 640px;
@@ -470,7 +501,7 @@
   margin-top: 2px;
 }
 
-/* ===== SECTION GALLERY ===== */
+/* SECTION GALLERY */
 .section-gallery {
   padding: 80px 24px;
   max-width: 640px;
@@ -521,7 +552,7 @@
   opacity: 1;
 }
 
-/* ===== SECTION RSVP ===== */
+/* SECTION RSVP */
 .section-rsvp {
   padding: 80px 24px;
   max-width: 640px;
@@ -689,7 +720,7 @@
   transform: scale(0.98);
 }
 
-/* ===== WISHLIST ===== */
+/* WISHLIST */
 .wishlist-header {
   display: flex;
   justify-content: space-between;
@@ -803,7 +834,7 @@
   letter-spacing: 0.3px;
 }
 
-/* ===== SECTION CLOSING ===== */
+/* SECTION CLOSING */
 .section-closing {
   padding: 80px 24px 160px;
   max-width: 640px;
@@ -886,7 +917,7 @@
   text-transform: uppercase;
 }
 
-/* ===== RESPONSIVE ===== */
+/* RESPONSIVE */
 @media (max-width: 480px) {
   .music-player {
     min-width: 220px;
@@ -906,4 +937,110 @@
   .rsvp-card {
     padding: 32px 20px;
   }
+}
+
+/* IMAGE OVERRIDES */
+.opener-cover {
+  background: none;
+}
+
+.opener-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.rsvp-avatar {
+  overflow: hidden;
+}
+
+.rsvp-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gallery-hint {
+  text-align: center;
+  font-size: 11px;
+  color: #535353;
+  margin-top: 12px;
+}
+
+/* SECTION GIFT (Spotify style) */
+.section-gift {
+  padding: 80px 24px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.gift-note {
+  font-size: 13px;
+  color: #A7A7A7;
+  margin-bottom: 8px;
+}
+
+.gift-card {
+  background: #181818;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 24px;
+  margin-top: 16px;
+}
+
+.gift-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(29,185,84,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.gift-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #1DB954;
+  margin-bottom: 6px;
+}
+
+.gift-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.gift-sub {
+  font-size: 12px;
+  color: #A7A7A7;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  white-space: pre-line;
+}
+
+.gift-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #1DB954;
+  color: #000;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.gift-copy-btn:hover {
+  background: #1ed760;
+  transform: scale(1.03);
 }
