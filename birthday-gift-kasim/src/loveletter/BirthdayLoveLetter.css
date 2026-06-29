@@ -1,0 +1,881 @@
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@500;600;700&display=swap");
+
+/* 
+   CSS CUSTOM PROPERTIES
+ */
+.ll-root {
+  --ll-bg-pink: #ffe1f0;
+  --ll-bg-blue: #dff3ff;
+  --ll-bg-yellow: #fff6d6;
+  --ll-outline: #221b3a;
+  --ll-cream: #fffdf7;
+  --ll-pink: #ff6fa5;
+  --ll-yellow: #ffd23f;
+  --ll-mint: #6fe7c9;
+  --ll-purple: #b98eff;
+  --ll-font-display: "Fredoka", sans-serif;
+  --ll-font-body: "Quicksand", sans-serif;
+
+  position: relative;
+  min-height: 100vh;
+}
+
+/* 
+   PROGRESS BAR
+ */
+.ll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--ll-pink),
+    var(--ll-purple),
+    var(--ll-mint)
+  );
+  border-bottom: 1.5px solid var(--ll-outline);
+  transform-origin: 0%;
+  z-index: 100;
+  pointer-events: none;
+}
+
+/* 
+   FLOATING BLOBS
+ */
+.ll-blob {
+  position: absolute;
+  border-radius: 50% 45% 55% 50%;
+  border: 3px solid var(--ll-outline);
+  opacity: 0.45;
+  pointer-events: none;
+}
+.ll-blob-1 {
+  left: 8%;
+  top: 12%;
+  width: 4rem;
+  height: 4rem;
+  background: var(--ll-yellow);
+}
+.ll-blob-2 {
+  right: 10%;
+  top: 30%;
+  width: 3rem;
+  height: 3rem;
+  background: var(--ll-mint);
+}
+.ll-blob-3 {
+  left: 18%;
+  bottom: 14%;
+  width: 3.5rem;
+  height: 3.5rem;
+  background: var(--ll-purple);
+}
+
+/* 
+   ENVELOPE (stage: closed)
+ */
+.ll-envelope-screen {
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1.5rem;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    var(--ll-bg-pink),
+    var(--ll-bg-blue),
+    var(--ll-bg-yellow)
+  );
+}
+
+.ll-envelope-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.ll-envelope-label {
+  font-family: var(--ll-font-body);
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  color: var(--ll-outline);
+}
+
+.ll-envelope-box {
+  position: relative;
+  width: 17rem;
+  height: 11rem;
+}
+
+.ll-envelope-body {
+  position: absolute;
+  inset: 0;
+  border-radius: 1rem;
+  background: var(--ll-cream);
+  border: 3px solid var(--ll-outline);
+  box-shadow: 6px 6px 0 var(--ll-outline);
+}
+
+.ll-envelope-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: var(--ll-pink);
+  border: 3px solid var(--ll-outline);
+  border-bottom: none;
+  border-radius: 1rem 1rem 0 0;
+  clip-path: polygon(0 0, 100% 0, 50% 90%);
+}
+
+.ll-washi-tape {
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  width: 5rem;
+  height: 1.4rem;
+  transform: translate(-50%, -50%) rotate(-6deg);
+  background: repeating-linear-gradient(
+    45deg,
+    var(--ll-mint) 0 8px,
+    var(--ll-cream) 8px 16px
+  );
+  border: 2px solid var(--ll-outline);
+  border-radius: 2px;
+  opacity: 0.95;
+}
+
+.ll-envelope-badge {
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  height: 2.75rem;
+  width: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--ll-yellow);
+  border: 3px solid var(--ll-outline);
+  font-family: var(--ll-font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--ll-outline);
+}
+
+.ll-envelope-button {
+  font-family: var(--ll-font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ll-outline);
+  background: var(--ll-mint);
+  border: 3px solid var(--ll-outline);
+  border-radius: 9999px;
+  padding: 0.75rem 1.75rem;
+  box-shadow: 4px 4px 0 var(--ll-outline);
+  cursor: pointer;
+}
+
+/* 
+   UNFOLD OVERLAY (stage: opening)
+ */
+.ll-unfold-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    var(--ll-bg-pink),
+    var(--ll-bg-blue),
+    var(--ll-bg-yellow)
+  );
+}
+
+.ll-unfold-paper {
+  position: relative;
+  width: 18rem;
+  height: 12rem;
+  perspective: 900px;
+}
+
+.ll-fold-panel {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 33.333%;
+  background: var(--ll-cream);
+  border: 3px solid var(--ll-outline);
+  transform-origin: top center;
+  backface-visibility: hidden;
+  opacity: 0;
+}
+.ll-fold-1 {
+  top: 0;
+  border-radius: 1rem 1rem 0 0;
+}
+.ll-fold-2 {
+  top: 33.333%;
+}
+.ll-fold-3 {
+  top: 66.666%;
+  border-radius: 0 0 1rem 1rem;
+}
+
+/* 
+   SCROLL CONTAINER (stage: opened)
+ */
+.ll-scroll-container {
+  position: relative;
+  overflow-x: hidden;
+  background: linear-gradient(
+    180deg,
+    var(--ll-bg-pink) 0%,
+    var(--ll-bg-blue) 50%,
+    var(--ll-bg-yellow) 100%
+  );
+  scroll-snap-type: y proximity;
+}
+
+.ll-section {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 1.5rem 4rem;
+  scroll-snap-align: start;
+}
+
+/* Badge reusable */
+.ll-hero-badge {
+  font-family: var(--ll-font-display);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  color: var(--ll-outline);
+  background: var(--ll-yellow);
+  border: 3px solid var(--ll-outline);
+  border-radius: 9999px;
+  padding: 0.4rem 1.1rem;
+  box-shadow: 3px 3px 0 var(--ll-outline);
+  margin-bottom: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ll-badge-icon {
+  flex-shrink: 0;
+}
+
+/* Wish icon */
+.ll-wish-icon {
+  color: var(--ll-pink);
+  stroke: var(--ll-outline);
+  flex-shrink: 0;
+}
+/* 
+   SECTION 1 — HERO
+ */
+.ll-hero {
+  gap: 0;
+}
+
+.ll-hero-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ll-hero-title {
+  font-family: var(--ll-font-display);
+  font-weight: 700;
+  font-size: clamp(2.8rem, 12vw, 5rem);
+  text-align: center;
+  color: var(--ll-pink);
+  -webkit-text-stroke: 2.5px var(--ll-outline);
+  paint-order: stroke fill;
+  line-height: 1.05;
+  margin: 0.25rem 0 0.75rem;
+  letter-spacing: -0.01em;
+}
+
+.ll-hero-hearts {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 1.4rem;
+  margin: 0.25rem 0 0.75rem;
+}
+
+.ll-hero-sub {
+  font-family: var(--ll-font-body);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--ll-outline);
+  opacity: 0.65;
+  margin-top: 0.5rem;
+}
+
+.ll-hero-chevron {
+  margin-top: 3.5rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--ll-outline);
+  flex-shrink: 0;
+}
+
+/* Confetti */
+.ll-confetti-wrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.ll-confetti-piece {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* 
+   SECTION 2 — TIMELINE
+ */
+.ll-timeline-section {
+  min-height: auto;
+  padding: 5rem 1.5rem;
+}
+
+.ll-timeline {
+  position: relative;
+  width: 100%;
+  max-width: 38rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 0.5rem 0;
+}
+
+/* Garis tengah vertikal */
+.ll-timeline-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--ll-outline);
+  transform: translateX(-50%);
+}
+
+.ll-timeline-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 1rem;
+}
+
+/* Item kiri — kartu di kiri, dot di kanan kartu */
+.ll-tl-left {
+  flex-direction: row;
+  padding-right: calc(50% + 1.5rem);
+}
+
+/* Item kanan — kartu di kanan, dot di kiri kartu */
+.ll-tl-right {
+  flex-direction: row-reverse;
+  padding-left: calc(50% + 1.5rem);
+}
+
+.ll-timeline-dot {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  background: var(--ll-cream);
+  border: 3px solid var(--ll-outline);
+  box-shadow: 3px 3px 0 var(--ll-outline);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+.ll-timeline-card {
+  background: var(--ll-cream);
+  border: 3px solid var(--ll-outline);
+  border-radius: 0.85rem;
+  box-shadow: 4px 4px 0 var(--ll-outline);
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+}
+
+.ll-timeline-date {
+  font-family: var(--ll-font-body);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ll-pink);
+}
+
+.ll-timeline-label {
+  font-family: var(--ll-font-body);
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--ll-outline);
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* 
+   SECTION 3 — PESAN
+ */
+.ll-message {
+  gap: 0;
+}
+
+.ll-message-card {
+  max-width: 32rem;
+  width: 100%;
+  background: var(--ll-cream);
+  border: 3px solid var(--ll-outline);
+  border-radius: 1.25rem;
+  box-shadow: 6px 6px 0 var(--ll-outline);
+  padding: 2.5rem 2.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  position: relative;
+}
+
+.ll-message-deco {
+  text-align: center;
+  font-size: 1.25rem;
+  color: var(--ll-pink);
+  opacity: 0.6;
+  line-height: 1;
+}
+.ll-message-deco-bottom {
+  margin-top: 0.25rem;
+}
+
+.ll-message-line {
+  opacity: 0; /* Anime.js reveal */
+  font-family: var(--ll-font-body);
+  font-weight: 600;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--ll-outline);
+  text-align: center;
+  margin: 0;
+}
+
+/* 
+   SECTION 4 — WISHES
+ */
+.ll-wishes-section {
+  min-height: auto;
+  padding: 5rem 1.5rem;
+}
+
+.ll-wishes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.1rem;
+  max-width: 38rem;
+  width: 100%;
+}
+
+.ll-wish-card {
+  background: var(--ll-cream);
+  border: 3px solid var(--ll-outline);
+  border-radius: 1rem;
+  box-shadow: 4px 4px 0 var(--ll-outline);
+  padding: 1.1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  cursor: default;
+  transition: box-shadow 0.2s ease;
+}
+
+.ll-wish-emoji {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.ll-wish-text {
+  font-family: var(--ll-font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--ll-outline);
+  margin: 0;
+}
+
+/* 
+   SECTION 5 — GALERI
+ */
+.ll-gallery {
+  gap: 2rem;
+}
+
+.ll-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  max-width: 38rem;
+  width: 100%;
+}
+
+.ll-photo-card {
+  opacity: 0; /* Anime.js reveal */
+  position: relative;
+  overflow: visible;
+  border-radius: 0.75rem;
+  border: 3px solid var(--ll-outline);
+  background: var(--ll-cream);
+  box-shadow: 5px 5px 0 var(--ll-outline);
+  aspect-ratio: 3 / 4;
+  transform: rotate(var(--rot, 0deg));
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.ll-photo-card:hover {
+  transform: rotate(0deg) scale(1.1);
+  box-shadow: 8px 8px 0 var(--ll-outline);
+  z-index: 5;
+}
+
+.ll-photo-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.6rem;
+  display: block;
+  pointer-events: none;
+}
+
+.ll-photo-tape {
+  position: absolute;
+  top: -0.6rem;
+  left: 50%;
+  transform: translateX(-50%) rotate(-4deg);
+  width: 3rem;
+  height: 1.1rem;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--ll-purple) 0 6px,
+    var(--ll-cream) 6px 12px
+  );
+  border: 2px solid var(--ll-outline);
+  border-radius: 2px;
+  opacity: 0.95;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* 
+   SECTION 6 — QUOTE
+ */
+.ll-quote-section {
+  background: transparent;
+}
+
+.ll-quote-wrap {
+  position: relative;
+  max-width: 30rem;
+  text-align: center;
+  padding: 3rem 2.5rem;
+  background: var(--ll-outline);
+  border-radius: 1.5rem;
+  box-shadow: 7px 7px 0 var(--ll-pink);
+  border: 3px solid var(--ll-outline);
+}
+
+.ll-quote-mark {
+  font-family: var(--ll-font-display);
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--ll-yellow);
+  line-height: 0.5;
+  display: block;
+  opacity: 0.7;
+}
+.ll-quote-open {
+  margin-bottom: 0.5rem;
+}
+.ll-quote-close {
+  margin-top: 0.5rem;
+}
+
+.ll-quote-text {
+  font-family: var(--ll-font-display);
+  font-weight: 600;
+  font-size: clamp(1.2rem, 3.5vw, 1.55rem);
+  line-height: 1.55;
+  color: var(--ll-cream);
+  margin: 0.5rem 0;
+}
+
+.ll-quote-author {
+  font-family: var(--ll-font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--ll-mint);
+  margin: 0.75rem 0 0;
+  letter-spacing: 0.06em;
+}
+
+/* 
+   SECTION 7 — PENUTUP + SURPRISE
+ */
+.ll-closing-content {
+  opacity: 0; /* Anime.js reveal */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ll-closing-heart {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--ll-pink);
+  fill: var(--ll-pink);
+  stroke: var(--ll-outline);
+  stroke-width: 1.5;
+}
+
+.ll-closing-text {
+  font-family: var(--ll-font-display);
+  font-weight: 600;
+  font-size: clamp(1.2rem, 4vw, 1.55rem);
+  color: var(--ll-outline);
+  text-align: center;
+  margin: 0;
+}
+
+.ll-closing-signature {
+  font-family: var(--ll-font-body);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--ll-pink);
+  margin: 0 0 0.5rem;
+}
+
+/* Surprise button */
+.ll-surprise-btn {
+  margin-top: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--ll-font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ll-outline);
+  background: var(--ll-pink);
+  border: 3px solid var(--ll-outline);
+  border-radius: 9999px;
+  padding: 0.7rem 1.6rem;
+  box-shadow: 4px 4px 0 var(--ll-outline);
+  cursor: pointer;
+}
+
+.ll-surprise-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* Surprise message */
+.ll-surprise-message {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--ll-cream);
+  border: 3px solid var(--ll-outline);
+  border-radius: 1rem;
+  box-shadow: 5px 5px 0 var(--ll-outline);
+  padding: 1.25rem 1.75rem;
+  max-width: 22rem;
+  text-align: center;
+}
+
+.ll-surprise-sparkle {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--ll-yellow);
+  stroke: var(--ll-outline);
+  stroke-width: 1.5;
+}
+
+.ll-surprise-message p {
+  font-family: var(--ll-font-body);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--ll-outline);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MUSIC TOGGLE
+═══════════════════════════════════════════════════════════════════ */
+.ll-music-toggle {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  z-index: 20;
+  display: flex;
+  height: 2.85rem;
+  width: 2.85rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--ll-yellow);
+  border: 3px solid var(--ll-outline);
+  color: var(--ll-outline);
+  box-shadow: 3px 3px 0 var(--ll-outline);
+  cursor: pointer;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESPONSIVE — MOBILE
+═══════════════════════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  .ll-section {
+    padding: 4rem 1.1rem 3rem;
+  }
+
+  /* Hero */
+  .ll-hero-title {
+    font-size: clamp(2.4rem, 15vw, 3.2rem);
+  }
+
+  /* Timeline — jadi single column */
+  .ll-timeline {
+    gap: 1.5rem;
+    padding: 0 0.5rem;
+  }
+  .ll-timeline-line {
+    display: none;
+  }
+  .ll-tl-left,
+  .ll-tl-right {
+    flex-direction: row;
+    padding: 0;
+  }
+  .ll-timeline-dot {
+    position: relative;
+    left: auto;
+    transform: none;
+    flex-shrink: 0;
+  }
+  .ll-timeline-card {
+    flex: 1;
+  }
+
+  /* Wishes — single column */
+  .ll-wishes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Message */
+  .ll-message-card {
+    padding: 1.75rem 1.25rem;
+  }
+  .ll-message-line {
+    font-size: 0.98rem;
+  }
+
+  /* Gallery */
+  .ll-gallery-grid {
+    gap: 1rem;
+  }
+
+  /* Quote */
+  .ll-quote-wrap {
+    padding: 2rem 1.5rem;
+  }
+
+  /* Envelope */
+  .ll-envelope-box {
+    width: 14rem;
+    height: 9rem;
+  }
+  .ll-unfold-paper {
+    width: 14rem;
+    height: 9.5rem;
+  }
+
+  /* Blobs lebih kecil */
+  .ll-blob-1 {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+  .ll-blob-2 {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+  .ll-blob-3 {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+
+/* Layar sangat kecil */
+@media (max-width: 340px) {
+  .ll-gallery-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   AKSESIBILITAS — REDUCED MOTION
+ */
+@media (prefers-reduced-motion: reduce) {
+  .ll-blob {
+    animation: none !important;
+  }
+
+  .ll-message-line,
+  .ll-photo-card,
+  .ll-closing-content {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .ll-photo-card {
+    transition: none !important;
+  }
+}
