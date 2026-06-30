@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import SpotifyInvitation from "./spotify/SpotifyInvitation";
 import TinderInvitation from "./tinder/TinderInvitation";
-import LockscreenInvitation from "./lockscreen/LockscreenInvitation";
+import IOSInvitation from "./ios/IOSInvitation";
 
 function App() {
   return (
@@ -9,7 +9,7 @@ function App() {
       <Routes>
         <Route path="/spotify" element={<SpotifyInvitation />} />
         <Route path="/tinder" element={<TinderInvitation />} />
-        <Route path="/lockscreen" element={<LockscreenInvitation />} />
+        <Route path="/ios" element={<IOSInvitation />} />
       </Routes>
     </BrowserRouter>
   );
