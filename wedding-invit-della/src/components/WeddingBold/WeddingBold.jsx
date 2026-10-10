@@ -44,11 +44,13 @@ textarea,button,input{font-family:inherit}
 @keyframes coverExit{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(1.04)}}
 @keyframes borderPulse{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,0)}50%{box-shadow:0 0 18px 4px rgba(201,168,76,.28)}}
 @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes modalIn{from{opacity:0;transform:scale(.92) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 
 .c1{animation:fadeUp .75s ease both;animation-delay:.05s}
 .c2{animation:fadeUp .75s ease both;animation-delay:.28s}
 .c3{animation:fadeUp .75s ease both;animation-delay:.52s}
 .c4{animation:fadeUp .75s ease both;animation-delay:.76s}
+.c4b{animation:fadeUp .75s ease both;animation-delay:.88s}
 .c5{animation:fadeUp .75s ease both;animation-delay:1s}
 
 .float{animation:floatY 4s ease-in-out infinite}
@@ -185,9 +187,47 @@ const Bg = () => (
 const Sep = () => <div style={{height:1,background:`linear-gradient(90deg,transparent,${C.goldDim},transparent)`,margin:"0 20px"}}/>;
 
 /* ══════════════════════════════════════════════════════════════════════
+   QR MODAL — guest-specific attendance QR code
+══════════════════════════════════════════════════════════════════════ */
+function QRModal({ guestName, onClose }) {
+  // Unique payload per guest, so every invitation link produces its own QR
+  const payload = `Undangan: Dita & Amin\nTamu: ${guestName}\nTanggal: 3 Juli 2026\nKode: ${btoa(unescape(encodeURIComponent(guestName))).slice(0,10)}`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=230x230&margin=8&color=5a0a0a&bgcolor=f0e7c4&data=${encodeURIComponent(payload)}`;
+
+  return (
+    <div onClick={onClose} style={{
+      position:"fixed",inset:0,zIndex:999,background:"rgba(0,0,0,.72)",
+      display:"flex",alignItems:"center",justifyContent:"center",padding:20,animation:"fadeIn .2s ease"}}>
+      <div onClick={e=>e.stopPropagation()} style={{
+        position:"relative",width:"100%",maxWidth:300,
+        border:`1.5px solid ${C.gold}`,background:"linear-gradient(160deg,#5a0a0a,#3a0505)",
+        padding:"32px 24px 26px",textAlign:"center",animation:"modalIn .28s ease"}}>
+        <Corner/><Corner flip/>
+        <button onClick={onClose} style={{
+          position:"absolute",top:10,right:12,background:"none",border:"none",
+          color:C.gold,fontSize:16,cursor:"pointer",fontFamily:F.cinzel,lineHeight:1}}>✕</button>
+
+        <p style={{fontFamily:F.cinzel,letterSpacing:4,fontSize:8,color:C.gold,textTransform:"uppercase",marginBottom:10}}>
+          QR Kehadiran
+        </p>
+        <p style={{fontFamily:F.vibes,fontSize:28,color:C.w,marginBottom:18,lineHeight:1.1}}>{guestName}</p>
+
+        <div style={{background:"#f0e7c4",padding:12,display:"inline-block",border:`1px solid ${C.goldDim}`}}>
+          <img src={qrUrl} alt="QR Code Kehadiran" width={200} height={200} style={{display:"block"}}/>
+        </div>
+
+        <p style={{fontFamily:F.cormorant,fontStyle:"italic",fontSize:12,color:C.wD,lineHeight:1.8,marginTop:18}}>
+          Kode ini unik untuk Anda. Mohon tunjukkan QR ini kepada petugas saat check-in di lokasi acara.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════════
    COVER
 ══════════════════════════════════════════════════════════════════════ */
-function Cover({ onOpen }) {
+function Cover({ onOpen, guestName, onShowQR }) {
   const [out, setOut] = useState(false);
   const go = () => { setOut(true); setTimeout(onOpen, 460); };
 
@@ -241,17 +281,43 @@ function Cover({ onOpen }) {
         <div style={{width:30,height:1,background:C.goldDim}}/>
       </div>
 
+      {/* Guest name */}
+      <div className="c3" style={{marginTop:18}}>
+        <p style={{fontFamily:F.cinzel,fontSize:7.5,color:C.wDD,letterSpacing:2.5,textTransform:"uppercase",marginBottom:4}}>
+          Kepada Yth. Bapak/Ibu/Saudara/i
+        </p>
+        <p style={{fontFamily:F.cormorant,fontStyle:"italic",fontWeight:600,fontSize:16,color:C.gold}}>
+          {guestName}
+        </p>
+      </div>
+
       {/* CTA */}
       <button className="c4 btn" onClick={go} style={{
-        marginTop:28,padding:"13px 42px",background:"transparent",border:`1.5px solid ${C.gold}`,
+        marginTop:26,padding:"13px 42px",background:"transparent",border:`1.5px solid ${C.gold}`,
         color:C.w,fontFamily:F.cinzel,fontSize:9,letterSpacing:4,borderRadius:2,textTransform:"uppercase"
       }}
         onMouseEnter={e=>{e.currentTarget.style.background=C.gold;e.currentTarget.style.color=C.red}}
         onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color=C.w}}
       >Buka Undangan</button>
 
+      {/* QR button */}
+      <button className="c4b btn" onClick={onShowQR} style={{
+        marginTop:11,padding:"11px 34px",background:"rgba(201,168,76,.1)",border:`1px solid ${C.goldDim}`,
+        color:C.gold,fontFamily:F.cinzel,fontSize:8,letterSpacing:3,borderRadius:2,textTransform:"uppercase",
+        display:"inline-flex",alignItems:"center",gap:8
+      }}
+        onMouseEnter={e=>{e.currentTarget.style.borderColor=C.gold;e.currentTarget.style.background="rgba(201,168,76,.18)"}}
+        onMouseLeave={e=>{e.currentTarget.style.borderColor=C.goldDim;e.currentTarget.style.background="rgba(201,168,76,.1)"}}
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM19 14h2v2h-2zM14 19h2v2h-2zM19 19h2v2h-2z"/>
+        </svg>
+        Lihat QR Kehadiran Saya
+      </button>
+
       {/* Quote */}
-      <p className="c5" style={{marginTop:26,fontFamily:F.cormorant,fontStyle:"italic",
+      <p className="c5" style={{marginTop:24,fontFamily:F.cormorant,fontStyle:"italic",
         fontSize:13.5,color:C.wDD,maxWidth:230,lineHeight:1.75}}>
         "Dua jiwa, satu takdir, selamanya."
       </p>
@@ -471,11 +537,11 @@ function EventCard({ title, date, time, venue, addr, mapsUrl, delay }) {
           </svg>
           Buka Google Maps
         </a>
-        <button className="btn" style={{
+        {/* <button className="btn" style={{
           padding:"12px",background:"transparent",border:`1px solid ${C.wDD}`,
           color:C.wD,fontFamily:F.cinzel,fontSize:8.5,letterSpacing:2.5,borderRadius:2,textTransform:"uppercase"}}>
           Anda Diundang di Sini
-        </button>
+        </button> */}
       </div>
     </div>
   );
@@ -580,11 +646,11 @@ function GiftSection() {
       <Acc label="Transfer Rekening" open={bankOpen} toggle={()=>setBankOpen(!bankOpen)}>
         <BCard bank="BCA" acct="98122XXXX" name="Pramarta Andita"    color="#005baa" k="bca"/>
         <BCard bank="Mandiri" acct="75021XXXX" name="Aminudin Syahputra" color="#e07b00" k="mandiri"/>
-        <button className="btn" style={{
+        {/* <button className="btn" style={{
           width:"100%",padding:"12px",background:"transparent",border:`1px solid ${C.wDD}`,
           color:C.wD,fontFamily:F.cinzel,fontSize:8.5,cursor:"pointer",letterSpacing:2,borderRadius:2,marginTop:4}}>
           Konfirmasi Transfer
-        </button>
+        </button> */}
       </Acc>
 
       <Acc label="Kirim Kado" open={gifOpen} toggle={()=>setGifOpen(!gifOpen)}>
@@ -598,247 +664,23 @@ function GiftSection() {
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   RSVP
-══════════════════════════════════════════════════════════════════════ */
-/* ── helpers ── */
-function timeAgo(iso) {
-  const s = Math.floor((Date.now() - new Date(iso)) / 1000);
-  if (s < 60)  return "Baru saja";
-  if (s < 3600) return Math.floor(s/60) + " menit lalu";
-  if (s < 86400) return Math.floor(s/3600) + " jam lalu";
-  return Math.floor(s/86400) + " hari lalu";
-}
-
-// function RSVPSection() {
-//   const r1 = useReveal(), r2 = useReveal();
-
-//   /* ── form state ── */
-//   const [rsvpName, setRsvpName] = useState("");
-//   const [pax,      setPax]      = useState("1");
-//   const [rsvpDone, setRsvpDone] = useState(null); // "hadir"|"tidak"
-
-//   const [wishName, setWishName] = useState("");
-//   const [wish,     setWish]     = useState("");
-//   const [sending,  setSending]  = useState(false);
-//   const [sent,     setSent]     = useState(false);
-
-//   /* ── persistent data ── */
-//   const [rsvpList, setRsvpList] = useState([]);   // [{name,pax,status,ts}]
-//   const [wishes,   setWishes]   = useState([]);   // [{name,text,ts}]
-//   const [loading,  setLoading]  = useState(true);
-
-//   /* load on mount */
-//   useEffect(() => {
-//     (async () => {
-//       try {
-//         const [wr, rr] = await Promise.all([
-//           window.storage.get("wedding:wishes", true),
-//           window.storage.get("wedding:rsvp",   true),
-//         ]);
-//         if (wr) setWishes(JSON.parse(wr.value));
-//         if (rr) setRsvpList(JSON.parse(rr.value));
-//       } catch(_) {}
-//       setLoading(false);
-//     })();
-//   }, []);
-
-//   /* submit RSVP */
-//   const submitRsvp = async (status) => {
-//     if (!rsvpName.trim()) { alert("Mohon isi nama Anda terlebih dahulu."); return; }
-//     const entry = { name: rsvpName.trim(), pax, status, ts: new Date().toISOString() };
-//     const next = [entry, ...rsvpList];
-//     setRsvpList(next);
-//     setRsvpDone(status);
-//     try { await window.storage.set("wedding:rsvp", JSON.stringify(next), true); } catch(_) {}
-//   };
-
-//   /* submit wish */
-//   const submitWish = async () => {
-//     if (!wish.trim()) return;
-//     setSending(true);
-//     const entry = { name: wishName.trim() || "Tamu", text: wish.trim(), ts: new Date().toISOString() };
-//     const next = [entry, ...wishes];
-//     try {
-//       await window.storage.set("wedding:wishes", JSON.stringify(next), true);
-//       setWishes(next);
-//       setSent(true); setWish(""); setWishName("");
-//       setTimeout(() => setSent(false), 3000);
-//     } catch(_) { alert("Gagal menyimpan ucapan, coba lagi."); }
-//     setSending(false);
-//   };
-
-//   /* summary counts */
-//   const totalHadir = rsvpList.filter(r=>r.status==="hadir").reduce((s,r)=>s+parseInt(r.pax)||1,0);
-//   const totalTidak = rsvpList.filter(r=>r.status==="tidak").length;
-
-//   const inp = {
-//     background:"rgba(0,0,0,.3)", border:`1px solid ${C.goldDim}`,
-//     color:C.w, fontFamily:F.cormorant, fontSize:14, padding:"12px 14px",
-//     borderRadius:2, width:"100%", outline:"none", transition:"border-color .2s",
-//   };
-//   const inpRed = { ...inp, background:"rgba(90,10,10,.07)", border:"1px solid rgba(90,10,10,.25)", color:"#3a0505" };
-
-//   return (
-//     <section style={{padding:"60px 20px 90px",position:"relative"}}>
-
-//       {/* ── RSVP card ── */}
-//       <div ref={r1} className="reveal">
-//         <div style={{background:"#f0e7c4",borderRadius:4,padding:"34px 24px",
-//           textAlign:"center",marginBottom:28,position:"relative",overflow:"hidden"}}>
-//           <Floral pos="tr"/>
-
-//           <p style={{fontFamily:F.cinzel,letterSpacing:4,fontSize:7.5,color:"#7a4a4a",marginBottom:6,textTransform:"uppercase"}}>
-//             Konfirmasi
-//           </p>
-//           <p style={{fontFamily:F.vibes,fontSize:46,color:C.red,marginBottom:8}}>Kehadiran</p>
-//           <p style={{fontFamily:F.cormorant,fontStyle:"italic",fontSize:13.5,color:"#7a4a4a",marginBottom:20,lineHeight:1.85}}>
-//             Mohon konfirmasikan kehadiran Anda<br/>sebelum tanggal 3 Juli 2026
-//           </p>
-
-//           {!rsvpDone ? (<>
-//             <input value={rsvpName} onChange={e=>setRsvpName(e.target.value)}
-//               placeholder="Nama Anda" style={{...inpRed,marginBottom:10}}/>
-
-//             <div style={{display:"flex",gap:8,marginBottom:14}}>
-//               {["1","2","3","4+"].map(v=>(
-//                 <button key={v} onClick={()=>setPax(v)} style={{
-//                   flex:1,padding:"10px 4px",
-//                   background:pax===v?C.red:"transparent",
-//                   color:pax===v?C.w:C.red,
-//                   border:`1.5px solid ${pax===v?C.red:"rgba(90,10,10,.35)"}`,
-//                   cursor:"pointer",fontFamily:F.cinzel,fontSize:10,borderRadius:2,transition:"all .2s"}}>
-//                   {v} org
-//                 </button>
-//               ))}
-//             </div>
-
-//             <button onClick={()=>submitRsvp("hadir")} style={{
-//               display:"block",width:"100%",padding:"13px",
-//               background:"#2c1a1a",color:C.w,border:"none",cursor:"pointer",
-//               fontFamily:F.cinzel,fontSize:9,letterSpacing:3,marginBottom:10,borderRadius:2,
-//               textTransform:"uppercase",transition:"background .25s"}}
-//               onMouseEnter={e=>e.currentTarget.style.background=C.red}
-//               onMouseLeave={e=>e.currentTarget.style.background="#2c1a1a"}>
-//               Saya Akan Hadir
-//             </button>
-//             <button onClick={()=>submitRsvp("tidak")} style={{
-//               display:"block",width:"100%",padding:"13px",
-//               background:"transparent",color:C.red,
-//               border:`1.5px solid ${C.red}`,cursor:"pointer",
-//               fontFamily:F.cinzel,fontSize:9,letterSpacing:3,borderRadius:2,textTransform:"uppercase"}}>
-//               Tidak Bisa Hadir
-//             </button>
-//           </>) : (
-//             <div style={{padding:"16px 0"}}>
-//               <p style={{fontSize:32,marginBottom:8}}>{rsvpDone==="hadir"?"🎉":"🙏"}</p>
-//               <p style={{fontFamily:F.cormorant,fontStyle:"italic",fontSize:15,color:C.red,lineHeight:1.8}}>
-//                 {rsvpDone==="hadir"
-//                   ? `Terima kasih, ${rsvpName}!\nKami menantikan kehadiran Anda.`
-//                   : `Terima kasih, ${rsvpName}.\nDoa Anda sangat berarti bagi kami.`}
-//               </p>
-//             </div>
-//           )}
-
-//           {/* live counter */}
-//           {!loading && rsvpList.length > 0 && (
-//             <div style={{marginTop:18,paddingTop:14,borderTop:"1px solid rgba(90,10,10,.15)",
-//               display:"flex",justifyContent:"center",gap:24}}>
-//               <div style={{textAlign:"center"}}>
-//                 <p style={{fontFamily:F.cinzel,fontSize:22,color:C.red,lineHeight:1}}>{totalHadir}</p>
-//                 <p style={{fontFamily:F.cormorant,fontSize:11,color:"#7a4a4a",marginTop:2}}>Tamu Hadir</p>
-//               </div>
-//               <div style={{width:1,background:"rgba(90,10,10,.2)"}}/>
-//               <div style={{textAlign:"center"}}>
-//                 <p style={{fontFamily:F.cinzel,fontSize:22,color:"#999",lineHeight:1}}>{totalTidak}</p>
-//                 <p style={{fontFamily:F.cormorant,fontSize:11,color:"#7a4a4a",marginTop:2}}>Tidak Hadir</p>
-//               </div>
-//             </div>
-//           )}
-//         </div>
-//       </div>
-
-//       {/* ── Wishes ── */}
-//       <div ref={r2} className="reveal">
-//         <p style={{textAlign:"center",fontFamily:F.cinzel,letterSpacing:4,fontSize:8.5,
-//           color:C.gold,textTransform:"uppercase",marginBottom:16}}>
-//           Kirim Ucapan & Doa
-//         </p>
-
-//         <input value={wishName} onChange={e=>setWishName(e.target.value)}
-//           placeholder="Nama Anda" style={{...inp,marginBottom:9}}
-//           onFocus={e=>e.target.style.borderColor=C.gold}
-//           onBlur={e=>e.target.style.borderColor=C.goldDim}/>
-
-//         <textarea value={wish} onChange={e=>setWish(e.target.value)} rows={4}
-//           placeholder="Tuliskan doa dan ucapan terbaik Anda untuk kedua mempelai…"
-//           style={{...inp,resize:"vertical",lineHeight:1.8,marginBottom:9}}
-//           onFocus={e=>e.target.style.borderColor=C.gold}
-//           onBlur={e=>e.target.style.borderColor=C.goldDim}/>
-
-//         <button className="btn" onClick={submitWish} disabled={sending} style={{
-//           width:"100%",padding:"13px",
-//           background:sent?"rgba(39,174,96,.15)":"transparent",
-//           border:`1px solid ${sent?"#27ae60":C.gold}`,
-//           color:sent?"#5cb85c":C.w,
-//           fontFamily:F.cinzel,fontSize:9,letterSpacing:3,borderRadius:2,
-//           textTransform:"uppercase",transition:"all .3s",
-//           opacity:sending?.6:1,cursor:sending?"not-allowed":"pointer"}}>
-//           {sending?"Menyimpan…":sent?"Terkirim ✓":"Kirim Ucapan"}
-//         </button>
-
-//         {/* Wish feed */}
-//         <div style={{marginTop:26}}>
-//           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
-//             <p style={{fontFamily:F.cinzel,fontSize:8,letterSpacing:3,color:C.goldDim,textTransform:"uppercase"}}>
-//               Ucapan Tamu
-//             </p>
-//             {!loading && (
-//               <p style={{fontFamily:F.cormorant,fontSize:12,color:C.wDD}}>
-//                 {wishes.length} ucapan
-//               </p>
-//             )}
-//           </div>
-
-//           {loading && (
-//             <p style={{fontFamily:F.cormorant,fontStyle:"italic",color:C.wDD,fontSize:13,textAlign:"center",padding:"20px 0"}}>
-//               Memuat ucapan…
-//             </p>
-//           )}
-
-//           {!loading && wishes.length === 0 && (
-//             <p style={{fontFamily:F.cormorant,fontStyle:"italic",color:C.wDD,fontSize:13,textAlign:"center",padding:"20px 0"}}>
-//               Jadilah yang pertama memberikan ucapan ✨
-//             </p>
-//           )}
-
-//           {wishes.map((w,i) => (
-//             <div key={i} style={{border:`1px solid ${C.goldDim}`,padding:"14px 16px",marginBottom:9,
-//               background:"rgba(0,0,0,.18)",borderRadius:2,
-//               animation:i===0?"fadeIn .4s ease":undefined}}>
-//               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
-//                 <span style={{fontFamily:F.cinzel,fontSize:9,color:C.gold,letterSpacing:1}}>{w.name}</span>
-//                 <span style={{fontFamily:F.cormorant,fontSize:11,color:C.wDD,whiteSpace:"nowrap",marginLeft:8}}>
-//                   {timeAgo(w.ts)}
-//                 </span>
-//               </div>
-//               <p style={{fontFamily:F.cormorant,fontSize:13.5,color:C.wD,lineHeight:1.75,fontStyle:"italic"}}>
-//                 {w.text}
-//               </p>
-//             </div>
-//           ))}
-//         </div>
-//       </div>
-//     </section>
-//   );
-// }
-
-/* ══════════════════════════════════════════════════════════════════════
    ROOT
 ══════════════════════════════════════════════════════════════════════ */
 export default function WeddingBold() {
   const [opened, setOpened] = useState(false);
-  const nav = ["Mempelai","Galeri","Acara","Hadiah","RSVP"];
+  const [showQR, setShowQR] = useState(false);
+  const [guestName, setGuestName] = useState("Tamu Undangan");
+  const nav = ["Mempelai","Galeri","Acara","Hadiah"];
   const scrollTo = id => document.getElementById(id)?.scrollIntoView({ behavior:"smooth" });
+
+  // Read guest name from the invitation link, e.g. ?to=Budi+Santoso
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const to = params.get("to") || params.get("nama");
+      if (to && to.trim()) setGuestName(to.trim());
+    } catch (e) { /* no query params available */ }
+  }, []);
 
   return (
     <>
@@ -847,7 +689,7 @@ export default function WeddingBold() {
       <div style={{maxWidth:430,margin:"0 auto",position:"relative",zIndex:1,
         fontFamily:F.cormorant,color:C.w,minHeight:"100vh"}}>
         {!opened ? (
-          <Cover onOpen={()=>setOpened(true)}/>
+          <Cover onOpen={()=>setOpened(true)} guestName={guestName} onShowQR={()=>setShowQR(true)}/>
         ) : (
           <>
             <nav style={{position:"sticky",top:0,zIndex:100,
@@ -874,8 +716,6 @@ export default function WeddingBold() {
             <div id="acara"><EventSection/></div>
             <Sep/>
             <div id="hadiah"><GiftSection/></div>
-            <Sep/>
-            {/* <div id="rsvp"><RSVPSection/></div> */}
 
             <div style={{textAlign:"center",padding:"26px 20px",borderTop:`1px solid ${C.goldDim}`}}>
               <p style={{fontFamily:F.vibes,fontSize:30,color:C.gold,marginBottom:6}}>Dita & Amin</p>
@@ -884,6 +724,8 @@ export default function WeddingBold() {
           </>
         )}
       </div>
+
+      {showQR && <QRModal guestName={guestName} onClose={()=>setShowQR(false)}/>}
     </>
   );
 }

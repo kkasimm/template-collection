@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const Rose = ({ size = 1, style }) => (
   <svg viewBox="0 0 100 100" style={{ width: size * 70, height: size * 70, flexShrink: 0, ...style }} xmlns="http://www.w3.org/2000/svg">
@@ -32,8 +32,14 @@ const PhotoBox = ({ label, role }) => (
   </div>
 );
 
+const SECTIONS = [
+  {id:"acara",label:"Acara",icon:"🕌"},
+  {id:"hitungmundur",label:"Hitung",icon:"⏳"},
+  {id:"lokasi",label:"Lokasi",icon:"📍"},
+  {id:"ucapan",label:"Ucapan",icon:"💌"},
+];
+
 export default function WeddingPink() {
-  const [tab, setTab] = useState("acara");
   const [opened, setOpened] = useState(false);
   const [cd, setCd] = useState({d:0,h:0,m:0,s:0});
   const [wishes, setWishes] = useState([
@@ -42,6 +48,10 @@ export default function WeddingPink() {
   ]);
   const [form, setForm] = useState({name:"",msg:"",attend:"hadir"});
   const [sent, setSent] = useState(false);
+  const [active, setActive] = useState("acara");
+  const [guestName, setGuestName] = useState("Tamu Undangan");
+  const [showQR, setShowQR] = useState(false);
+  const sectionRefs = useRef({});
 
   useEffect(()=>{
     const target = new Date("2025-09-20T09:00:00");
@@ -52,6 +62,35 @@ export default function WeddingPink() {
     return ()=>clearInterval(t);
   },[]);
 
+  // Read guest name from the invitation link, e.g. ?to=Budi+Santoso
+  useEffect(()=>{
+    try{
+      const params = new URLSearchParams(window.location.search);
+      const to = params.get("to") || params.get("nama");
+      if(to && to.trim()) setGuestName(to.trim());
+    }catch(e){/* no query params available */}
+  },[]);
+
+  // Scroll-spy for bottom nav
+  useEffect(()=>{
+    if(!opened) return;
+    const obs = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting) setActive(entry.target.id);
+      });
+    },{ rootMargin:"-45% 0px -45% 0px", threshold:0 });
+    SECTIONS.forEach(s=>{
+      const el = sectionRefs.current[s.id];
+      if(el) obs.observe(el);
+    });
+    return ()=>obs.disconnect();
+  },[opened]);
+
+  const scrollTo = (id) => {
+    const el = sectionRefs.current[id];
+    if(el) el.scrollIntoView({behavior:"smooth",block:"start"});
+  };
+
   const submit = () => {
     if(!form.name.trim()||!form.msg.trim()) return;
     setWishes([{...form,time:"Baru saja"},...wishes]);
@@ -59,7 +98,9 @@ export default function WeddingPink() {
     setSent(true); setTimeout(()=>setSent(false),3000);
   };
 
-  const tabs = ["Acara","Hitung Mundur","Lokasi","Ucapan"];
+  // Unique QR payload per guest
+  const qrData = encodeURIComponent(`Undangan: Rizky & Annisa\nTamu: ${guestName}\nTanggal: 20 September 2025\nKode: ${btoa(unescape(encodeURIComponent(guestName))).slice(0,10)}`);
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=8&color=9d174d&bgcolor=fff5f7&data=${qrData}`;
 
   return (
     <div style={{fontFamily:"'Josefin Sans',sans-serif",background:"#fff5f7",minHeight:"100vh",WebkitTextSizeAdjust:"100%"}}>
@@ -68,11 +109,15 @@ export default function WeddingPink() {
         *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
         @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
         @keyframes petal{0%{transform:translateY(-10px) rotate(0deg) translateX(0);opacity:1}100%{transform:translateY(100vh) rotate(360deg) translateX(30px);opacity:0}}
-        .tab-btn{background:none;border:none;border-bottom:2px solid transparent;padding:10px 10px 8px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#be185d;cursor:pointer;white-space:nowrap;transition:all 0.2s;-webkit-appearance:none;}
-        .tab-btn.on{border-bottom-color:#ec4899;color:#9d174d;font-weight:400;}
+        @keyframes modalIn{from{opacity:0;transform:scale(0.92) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+        .nav-btn{background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 6px;font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#d4788c;cursor:pointer;-webkit-appearance:none;flex:1;transition:color 0.2s;}
+        .nav-btn.on{color:#9d174d;}
+        .nav-btn .dot{width:5px;height:5px;border-radius:50%;background:transparent;transition:background 0.2s;}
+        .nav-btn.on .dot{background:#ec4899;}
         .inp{width:100%;border:1px solid #fce4ec;border-radius:10px;padding:11px 14px;font-family:'Josefin Sans',sans-serif;font-size:14px;color:#4a0010;background:#fff;outline:none;-webkit-appearance:none;}
         .inp:focus{border-color:#f48fb1;}
         .btn-pink{background:linear-gradient(135deg,#f48fb1,#ec4899);color:#fff;border:none;border-radius:24px;padding:12px 28px;font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:2px;cursor:pointer;-webkit-appearance:none;display:inline-block;}
+        .btn-outline{background:#fff;color:#9d174d;border:1.5px solid #f48fb1;border-radius:24px;padding:11px 26px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:2px;cursor:pointer;-webkit-appearance:none;display:inline-flex;align-items:center;gap:8px;}
       `}</style>
 
       {/* Falling petals */}
@@ -87,13 +132,20 @@ export default function WeddingPink() {
           <div style={{position:"absolute",bottom:32,left:8,opacity:0.3}}><Rose size={0.55}/></div>
           <p style={{fontSize:10,letterSpacing:4,color:"#be185d",textTransform:"uppercase",margin:"0 0 8px",textAlign:"center"}}>Undangan Pernikahan</p>
           <h1 style={{fontFamily:"'Great Vibes',cursive",fontSize:"clamp(48px,14vw,72px)",color:"#9d174d",margin:"4px 0",textAlign:"center",lineHeight:1.1}}>Rizky & Annisa</h1>
-          <p style={{fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",fontSize:15,color:"#be185d",margin:"8px 0 32px",textAlign:"center"}}>20 September 2025</p>
+          <p style={{fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",fontSize:15,color:"#be185d",margin:"8px 0 20px",textAlign:"center"}}>20 September 2025</p>
           <Divider/>
-          <button className="btn-pink" onClick={()=>setOpened(true)} style={{marginTop:28}}>Buka Undangan</button>
+          <p style={{fontSize:10,letterSpacing:1,color:"#be185d",margin:"20px 0 2px",textAlign:"center"}}>Kepada Yth. Bapak/Ibu/Saudara/i</p>
+          <p style={{fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",fontWeight:600,fontSize:20,color:"#9d174d",margin:"2px 0 26px",textAlign:"center"}}>{guestName}</p>
+          <button className="btn-pink" onClick={()=>setOpened(true)}>Buka Undangan</button>
+
+          {/* Guest QR button */}
+          <button className="btn-outline mt-4" onClick={()=>setShowQR(true)} style={{margin:"4px 0 28px"}}>
+            <span style={{fontSize:14}}>▦</span> Lihat QR Kehadiran Saya
+          </button>
         </div>
       )}
 
-      <div style={{maxWidth:480,margin:"0 auto"}}>
+      <div style={{maxWidth:480,margin:"0 auto",paddingBottom:66}}>
         {/* Header */}
         <div style={{background:"linear-gradient(175deg,#fff0f4,#fce4ec,#fff5f7)",padding:"52px 20px 36px",textAlign:"center",position:"relative",overflow:"hidden"}}>
           <div style={{position:"absolute",top:-16,left:-16,opacity:0.35}}><Rose size={0.9}/></div>
@@ -103,7 +155,7 @@ export default function WeddingPink() {
           <p style={{fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:"#be185d",fontSize:14,margin:"6px 0 28px",letterSpacing:0.5}}>Menyatu dalam ikatan suci</p>
 
           {/* Couple photos */}
-          <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:12,margin:"0 0 28px"}}>
+          <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:12,margin:"0 0 20px"}}>
             <PhotoBox label="Rizky" role={"Mempelai\nPria"}/>
             <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:6,flexShrink:0}}>
               <Rose size={0.35}/>
@@ -113,124 +165,111 @@ export default function WeddingPink() {
             <PhotoBox label="Annisa" role={"Mempelai\nWanita"}/>
           </div>
 
+          
+
           <blockquote style={{fontFamily:"'Cormorant Garamond',serif",fontSize:13,color:"#9d174d",lineHeight:1.9,fontStyle:"italic",margin:"0 auto",maxWidth:320,padding:"0 8px"}}>
             "Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu istri-istri dari jenismu sendiri supaya kamu cenderung dan merasa tenteram kepadanya."
             <br/><span style={{fontSize:11,color:"#be185d",fontStyle:"normal"}}>QS. Ar-Rum: 21</span>
           </blockquote>
         </div>
 
-        {/* Sticky nav */}
-        <nav style={{display:"flex",justifyContent:"center",background:"#fff",borderBottom:"0.5px solid #fce4ec",position:"sticky",top:0,zIndex:10,overflowX:"auto",gap:0}}>
-          {tabs.map(t=>(
-            <button key={t} className={`tab-btn${tab===t.toLowerCase().replace(" ","")?" on":""}`} onClick={()=>setTab(t.toLowerCase().replace(" ",""))}>{t}</button>
-          ))}
-        </nav>
-
         {/* ACARA */}
-        {tab==="acara" && (
-          <div style={{padding:"32px 16px",animation:"fadeUp 0.5s ease"}}>
-            <p style={{fontSize:10,letterSpacing:3,color:"#be185d",textTransform:"uppercase",textAlign:"center",margin:"0 0 4px"}}>Rangkaian Acara</p>
-            <Divider/>
-            <div style={{marginTop:20,display:"flex",flexDirection:"column",gap:12}}>
-              {[{icon:"🕌",label:"Akad Nikah",time:"08.00 – 10.00 WIB",date:"Sabtu, 20 September 2025"},
-                {icon:"🌸",label:"Resepsi",time:"11.00 – 15.00 WIB",date:"Sabtu, 20 September 2025"}].map((e,i)=>(
-                <div key={i} style={{background:"#fff",border:"0.5px solid #fce4ec",borderRadius:14,padding:"16px",display:"flex",gap:14,alignItems:"center",boxShadow:"0 2px 12px rgba(236,72,153,0.06)"}}>
-                  <div style={{width:48,height:48,borderRadius:"50%",background:"#fce4ec",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>{e.icon}</div>
-                  <div>
-                    <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:19,color:"#9d174d",fontWeight:600,margin:"0 0 3px"}}>{e.label}</p>
-                    <p style={{fontSize:12,color:"#be185d",margin:"0 0 2px",letterSpacing:0.5}}>{e.time}</p>
-                    <p style={{fontSize:11,color:"#d4788c",margin:0}}>{e.date}</p>
-                  </div>
+        <div id="acara" ref={el=>sectionRefs.current.acara=el} style={{padding:"32px 16px",scrollMarginTop:8}}>
+          <p style={{fontSize:10,letterSpacing:3,color:"#be185d",textTransform:"uppercase",textAlign:"center",margin:"0 0 4px"}}>Rangkaian Acara</p>
+          <Divider/>
+          <div style={{marginTop:20,display:"flex",flexDirection:"column",gap:12}}>
+            {[{icon:"🕌",label:"Akad Nikah",time:"08.00 – 10.00 WIB",date:"Sabtu, 20 September 2025"},
+              {icon:"🌸",label:"Resepsi",time:"11.00 – 15.00 WIB",date:"Sabtu, 20 September 2025"}].map((e,i)=>(
+              <div key={i} style={{background:"#fff",border:"0.5px solid #fce4ec",borderRadius:14,padding:"16px",display:"flex",gap:14,alignItems:"center",boxShadow:"0 2px 12px rgba(236,72,153,0.06)"}}>
+                <div style={{width:48,height:48,borderRadius:"50%",background:"#fce4ec",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>{e.icon}</div>
+                <div>
+                  <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:19,color:"#9d174d",fontWeight:600,margin:"0 0 3px"}}>{e.label}</p>
+                  <p style={{fontSize:12,color:"#be185d",margin:"0 0 2px",letterSpacing:0.5}}>{e.time}</p>
+                  <p style={{fontSize:11,color:"#d4788c",margin:0}}>{e.date}</p>
                 </div>
-              ))}
-              <div style={{background:"#fff",border:"0.5px solid #fce4ec",borderRadius:14,padding:"16px",boxShadow:"0 2px 12px rgba(236,72,153,0.06)"}}>
-                <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:17,color:"#9d174d",fontWeight:600,margin:"0 0 6px"}}>📍 Lokasi</p>
-                <p style={{fontSize:13,color:"#be185d",margin:"0 0 3px",fontWeight:300}}>Gedung Graha Permai</p>
-                <p style={{fontSize:12,color:"#d4788c",margin:0,lineHeight:1.6}}>Jl. Kartini No. 45, Kelurahan Sukorejo<br/>Kota Blitar, Jawa Timur 66117</p>
               </div>
+            ))}
+            <div style={{background:"#fff",border:"0.5px solid #fce4ec",borderRadius:14,padding:"16px",boxShadow:"0 2px 12px rgba(236,72,153,0.06)"}}>
+              <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:17,color:"#9d174d",fontWeight:600,margin:"0 0 6px"}}>📍 Lokasi</p>
+              <p style={{fontSize:13,color:"#be185d",margin:"0 0 3px",fontWeight:300}}>Gedung Graha Permai</p>
+              <p style={{fontSize:12,color:"#d4788c",margin:0,lineHeight:1.6}}>Jl. Kartini No. 45, Kelurahan Sukorejo<br/>Kota Blitar, Jawa Timur 66117</p>
             </div>
           </div>
-        )}
+        </div>
 
         {/* HITUNG MUNDUR */}
-        {tab==="hitungmundur" && (
-          <div style={{padding:"32px 16px",textAlign:"center",animation:"fadeUp 0.5s ease"}}>
-            <p style={{fontSize:10,letterSpacing:3,color:"#be185d",textTransform:"uppercase",margin:"0 0 4px"}}>Hitung Mundur</p>
-            <Divider/>
-            <p style={{fontFamily:"'Great Vibes',cursive",fontSize:"clamp(28px,9vw,40px)",color:"#9d174d",margin:"16px 0 8px"}}>20 September 2025</p>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,margin:"20px 0",maxWidth:340,marginLeft:"auto",marginRight:"auto"}}>
-              {[["Hari",cd.d],["Jam",cd.h],["Menit",cd.m],["Detik",cd.s]].map(([l,v])=>(
-                <div key={l} style={{background:"#fff",border:"0.5px solid #fce4ec",borderRadius:12,padding:"14px 8px",boxShadow:"0 2px 10px rgba(236,72,153,0.07)"}}>
-                  <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(28px,8vw,40px)",color:"#9d174d",fontWeight:600,margin:"0 0 4px",lineHeight:1}}>{String(v).padStart(2,"0")}</p>
-                  <p style={{fontSize:9,color:"#be185d",letterSpacing:1.5,margin:0,textTransform:"uppercase"}}>{l}</p>
-                </div>
-              ))}
-            </div>
-            <div style={{marginTop:24}}><Rose size={0.65} style={{margin:"0 auto"}}/></div>
+        <div id="hitungmundur" ref={el=>sectionRefs.current.hitungmundur=el} style={{padding:"32px 16px",textAlign:"center",scrollMarginTop:8}}>
+          <p style={{fontSize:10,letterSpacing:3,color:"#be185d",textTransform:"uppercase",margin:"0 0 4px"}}>Hitung Mundur</p>
+          <Divider/>
+          <p style={{fontFamily:"'Great Vibes',cursive",fontSize:"clamp(28px,9vw,40px)",color:"#9d174d",margin:"16px 0 8px"}}>20 September 2025</p>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,margin:"20px 0",maxWidth:340,marginLeft:"auto",marginRight:"auto"}}>
+            {[["Hari",cd.d],["Jam",cd.h],["Menit",cd.m],["Detik",cd.s]].map(([l,v])=>(
+              <div key={l} style={{background:"#fff",border:"0.5px solid #fce4ec",borderRadius:12,padding:"14px 8px",boxShadow:"0 2px 10px rgba(236,72,153,0.07)"}}>
+                <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(28px,8vw,40px)",color:"#9d174d",fontWeight:600,margin:"0 0 4px",lineHeight:1}}>{String(v).padStart(2,"0")}</p>
+                <p style={{fontSize:9,color:"#be185d",letterSpacing:1.5,margin:0,textTransform:"uppercase"}}>{l}</p>
+              </div>
+            ))}
           </div>
-        )}
+          <div style={{marginTop:24}}><Rose size={0.65} style={{margin:"0 auto"}}/></div>
+        </div>
 
         {/* LOKASI */}
-        {tab==="lokasi" && (
-          <div style={{padding:"32px 16px",animation:"fadeUp 0.5s ease"}}>
-            <p style={{fontSize:10,letterSpacing:3,color:"#be185d",textTransform:"uppercase",textAlign:"center",margin:"0 0 4px"}}>Lokasi Acara</p>
-            <Divider/>
-            <div style={{background:"#fff",border:"0.5px solid #fce4ec",borderRadius:16,overflow:"hidden",boxShadow:"0 2px 14px rgba(236,72,153,0.08)",marginTop:20}}>
-              <div style={{background:"linear-gradient(135deg,#fce4ec,#fff0f4)",padding:"36px 16px",textAlign:"center"}}>
-                <div style={{fontSize:36,marginBottom:8}}>📍</div>
-                <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,color:"#9d174d",fontWeight:600,margin:0}}>Gedung Graha Permai</p>
-              </div>
-              <div style={{padding:"20px 20px 24px"}}>
-                <p style={{fontSize:13,color:"#4a0010",lineHeight:1.7,marginBottom:20}}>Jl. Kartini No. 45, Kelurahan Sukorejo,<br/>Kota Blitar, Jawa Timur 66117</p>
-                <a href="https://maps.google.com" style={{display:"inline-block",background:"linear-gradient(135deg,#f48fb1,#ec4899)",color:"#fff",borderRadius:24,padding:"11px 24px",fontSize:11,letterSpacing:2,textDecoration:"none",textTransform:"uppercase"}}>Buka Google Maps</a>
-              </div>
+        <div id="lokasi" ref={el=>sectionRefs.current.lokasi=el} style={{padding:"32px 16px",scrollMarginTop:8}}>
+          <p style={{fontSize:10,letterSpacing:3,color:"#be185d",textTransform:"uppercase",textAlign:"center",margin:"0 0 4px"}}>Lokasi Acara</p>
+          <Divider/>
+          <div style={{background:"#fff",border:"0.5px solid #fce4ec",borderRadius:16,overflow:"hidden",boxShadow:"0 2px 14px rgba(236,72,153,0.08)",marginTop:20}}>
+            <div style={{background:"linear-gradient(135deg,#fce4ec,#fff0f4)",padding:"36px 16px",textAlign:"center"}}>
+              <div style={{fontSize:36,marginBottom:8}}>📍</div>
+              <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,color:"#9d174d",fontWeight:600,margin:0}}>Gedung Graha Permai</p>
+            </div>
+            <div style={{padding:"20px 20px 24px"}}>
+              <p style={{fontSize:13,color:"#4a0010",lineHeight:1.7,marginBottom:20}}>Jl. Kartini No. 45, Kelurahan Sukorejo,<br/>Kota Blitar, Jawa Timur 66117</p>
+              <a href="https://maps.google.com" style={{display:"inline-block",background:"linear-gradient(135deg,#f48fb1,#ec4899)",color:"#fff",borderRadius:24,padding:"11px 24px",fontSize:11,letterSpacing:2,textDecoration:"none",textTransform:"uppercase"}}>Buka Google Maps</a>
             </div>
           </div>
-        )}
+        </div>
 
         {/* UCAPAN */}
-        {tab==="ucapan" && (
-          <div style={{padding:"32px 16px",animation:"fadeUp 0.5s ease"}}>
-            <p style={{fontSize:10,letterSpacing:3,color:"#be185d",textTransform:"uppercase",textAlign:"center",margin:"0 0 4px"}}>Kirim Ucapan & Doa</p>
-            <Divider/>
-            <div style={{background:"#fff",border:"0.5px solid #fce4ec",borderRadius:16,padding:"20px 16px",marginTop:20,marginBottom:20,boxShadow:"0 2px 12px rgba(236,72,153,0.06)"}}>
-              <input className="inp" placeholder="Nama Anda" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} style={{marginBottom:10}}/>
-              <textarea className="inp" placeholder="Tulis ucapan & doa untuk kedua mempelai..." value={form.msg} onChange={e=>setForm({...form,msg:e.target.value})} rows={3} style={{marginBottom:12,resize:"none"}}/>
-              <p style={{fontSize:10,color:"#be185d",letterSpacing:1.5,margin:"0 0 8px",textTransform:"uppercase"}}>Konfirmasi Kehadiran</p>
-              <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:16}}>
-                {["hadir","tidak hadir","masih ragu"].map(o=>(
-                  <label key={o} style={{display:"flex",alignItems:"center",gap:5,fontSize:12,color:form.attend===o?"#9d174d":"#d4788c",cursor:"pointer",padding:"6px 12px",border:`1px solid ${form.attend===o?"#f48fb1":"#fce4ec"}`,borderRadius:20,background:form.attend===o?"#fce4ec":"transparent",transition:"all 0.2s"}}>
-                    <input type="radio" name="att" value={o} checked={form.attend===o} onChange={()=>setForm({...form,attend:o})} style={{display:"none"}}/>{o.charAt(0).toUpperCase()+o.slice(1)}
-                  </label>
-                ))}
-              </div>
-              <div style={{textAlign:"right"}}>
-                <button className="btn-pink" onClick={submit}>Kirim Ucapan ✉</button>
-              </div>
-              {sent && <p style={{textAlign:"center",color:"#ec4899",fontSize:12,marginTop:12,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Terima kasih atas doa & ucapannya 🌸</p>}
-            </div>
-
-            <div style={{display:"flex",flexDirection:"column",gap:10}}>
-              {wishes.map((w,i)=>(
-                <div key={i} style={{background:"#fff",border:"0.5px solid #fce4ec",borderRadius:12,padding:"14px 16px",boxShadow:"0 1px 8px rgba(236,72,153,0.04)"}}>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-                    <div style={{display:"flex",gap:9,alignItems:"center"}}>
-                      <div style={{width:32,height:32,borderRadius:"50%",background:"#fce4ec",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,color:"#9d174d",fontFamily:"'Cormorant Garamond',serif",fontWeight:600,flexShrink:0}}>{w.name[0]}</div>
-                      <div>
-                        <p style={{fontSize:13,color:"#4a0010",fontWeight:400,margin:0,lineHeight:1.2}}>{w.name}</p>
-                        <span style={{fontSize:10,color:w.attend==="hadir"?"#059669":w.attend==="tidak hadir"?"#be185d":"#d4788c",letterSpacing:0.5}}>
-                          {w.attend==="hadir"?"✓ Hadir":w.attend==="tidak hadir"?"✗ Tidak hadir":"? Masih ragu"}
-                        </span>
-                      </div>
-                    </div>
-                    <span style={{fontSize:10,color:"#d4788c",flexShrink:0}}>{w.time}</span>
-                  </div>
-                  <p style={{fontSize:13,color:"#4a0010",lineHeight:1.7,margin:0,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>{w.msg}</p>
-                </div>
+        <div id="ucapan" ref={el=>sectionRefs.current.ucapan=el} style={{padding:"32px 16px",scrollMarginTop:8}}>
+          <p style={{fontSize:10,letterSpacing:3,color:"#be185d",textTransform:"uppercase",textAlign:"center",margin:"0 0 4px"}}>Kirim Ucapan & Doa</p>
+          <Divider/>
+          <div style={{background:"#fff",border:"0.5px solid #fce4ec",borderRadius:16,padding:"20px 16px",marginTop:20,marginBottom:20,boxShadow:"0 2px 12px rgba(236,72,153,0.06)"}}>
+            <input className="inp" placeholder="Nama Anda" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} style={{marginBottom:10}}/>
+            <textarea className="inp" placeholder="Tulis ucapan & doa untuk kedua mempelai..." value={form.msg} onChange={e=>setForm({...form,msg:e.target.value})} rows={3} style={{marginBottom:12,resize:"none"}}/>
+            <p style={{fontSize:10,color:"#be185d",letterSpacing:1.5,margin:"0 0 8px",textTransform:"uppercase"}}>Konfirmasi Kehadiran</p>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:16}}>
+              {["hadir","tidak hadir","masih ragu"].map(o=>(
+                <label key={o} style={{display:"flex",alignItems:"center",gap:5,fontSize:12,color:form.attend===o?"#9d174d":"#d4788c",cursor:"pointer",padding:"6px 12px",border:`1px solid ${form.attend===o?"#f48fb1":"#fce4ec"}`,borderRadius:20,background:form.attend===o?"#fce4ec":"transparent",transition:"all 0.2s"}}>
+                  <input type="radio" name="att" value={o} checked={form.attend===o} onChange={()=>setForm({...form,attend:o})} style={{display:"none"}}/>{o.charAt(0).toUpperCase()+o.slice(1)}
+                </label>
               ))}
             </div>
+            <div style={{textAlign:"right"}}>
+              <button className="btn-pink" onClick={submit}>Kirim Ucapan ✉</button>
+            </div>
+            {sent && <p style={{textAlign:"center",color:"#ec4899",fontSize:12,marginTop:12,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Terima kasih atas doa & ucapannya 🌸</p>}
           </div>
-        )}
+
+          <div style={{display:"flex",flexDirection:"column",gap:10}}>
+            {wishes.map((w,i)=>(
+              <div key={i} style={{background:"#fff",border:"0.5px solid #fce4ec",borderRadius:12,padding:"14px 16px",boxShadow:"0 1px 8px rgba(236,72,153,0.04)"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+                  <div style={{display:"flex",gap:9,alignItems:"center"}}>
+                    <div style={{width:32,height:32,borderRadius:"50%",background:"#fce4ec",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,color:"#9d174d",fontFamily:"'Cormorant Garamond',serif",fontWeight:600,flexShrink:0}}>{w.name[0]}</div>
+                    <div>
+                      <p style={{fontSize:13,color:"#4a0010",fontWeight:400,margin:0,lineHeight:1.2}}>{w.name}</p>
+                      <span style={{fontSize:10,color:w.attend==="hadir"?"#059669":w.attend==="tidak hadir"?"#be185d":"#d4788c",letterSpacing:0.5}}>
+                        {w.attend==="hadir"?"✓ Hadir":w.attend==="tidak hadir"?"✗ Tidak hadir":"? Masih ragu"}
+                      </span>
+                    </div>
+                  </div>
+                  <span style={{fontSize:10,color:"#d4788c",flexShrink:0}}>{w.time}</span>
+                </div>
+                <p style={{fontSize:13,color:"#4a0010",lineHeight:1.7,margin:0,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>{w.msg}</p>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* Footer */}
         <footer style={{textAlign:"center",padding:"28px 20px 40px",borderTop:"0.5px solid #fce4ec",marginTop:8}}>
@@ -240,6 +279,35 @@ export default function WeddingPink() {
           <p style={{fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",fontSize:12,color:"#be185d",lineHeight:1.9,margin:0}}>Merupakan suatu kehormatan bagi kami apabila<br/>Bapak/Ibu/Saudara/i berkenan hadir<br/>memberikan doa restu</p>
         </footer>
       </div>
+
+      {/* Bottom sticky nav (only after invitation is opened) */}
+      {opened && (
+        <nav style={{position:"fixed",bottom:0,left:0,right:0,zIndex:20,background:"#fff",borderTop:"0.5px solid #fce4ec",display:"flex",maxWidth:480,margin:"0 auto",boxShadow:"0 -4px 16px rgba(236,72,153,0.08)"}}>
+          {SECTIONS.map(s=>(
+            <button key={s.id} className={`nav-btn${active===s.id?" on":""}`} onClick={()=>scrollTo(s.id)}>
+              <span style={{fontSize:15,lineHeight:1}}>{s.icon}</span>
+              <span>{s.label}</span>
+              <span className="dot"/>
+            </button>
+          ))}
+        </nav>
+      )}
+
+      {/* QR Code modal */}
+      {showQR && (
+        <div onClick={()=>setShowQR(false)} style={{position:"fixed",inset:0,zIndex:60,background:"rgba(74,0,16,0.45)",display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff5f7",borderRadius:20,padding:"28px 24px 24px",maxWidth:320,width:"100%",textAlign:"center",boxShadow:"0 12px 40px rgba(157,23,77,0.25)",animation:"modalIn 0.25s ease",position:"relative"}}>
+            <button onClick={()=>setShowQR(false)} style={{position:"absolute",top:12,right:14,background:"none",border:"none",fontSize:18,color:"#be185d",cursor:"pointer",lineHeight:1}}>✕</button>
+            <Rose size={0.4} style={{margin:"0 auto 8px"}}/>
+            <p style={{fontSize:9,letterSpacing:3,color:"#be185d",textTransform:"uppercase",margin:"0 0 4px"}}>QR Kehadiran</p>
+            <p style={{fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",fontWeight:600,fontSize:19,color:"#9d174d",margin:"0 0 16px"}}>{guestName}</p>
+            <div style={{background:"#fff",borderRadius:14,padding:12,display:"inline-block",border:"0.5px solid #fce4ec"}}>
+              <img src={qrUrl} alt="QR Code Kehadiran" width={200} height={200} style={{display:"block",borderRadius:6}}/>
+            </div>
+            <p style={{fontSize:11,color:"#be185d",lineHeight:1.7,margin:"16px 0 0"}}>Kode ini unik untuk Anda. Mohon tunjukkan QR ini kepada petugas saat check-in di lokasi acara.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

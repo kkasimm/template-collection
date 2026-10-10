@@ -31,17 +31,17 @@ const INITIAL_WISHES = [
 ];
 
 const NAV = [
-  { id: "intro",   icon: "fa-envelope",      label: "Intro"   },
-  { id: "groom",   icon: "fa-male",           label: "Groom"   },
-  { id: "bride",   icon: "fa-female",         label: "Bride"   },
-  { id: "gallery", icon: "fa-images",         label: "Gallery" },
-  { id: "event",   icon: "fa-calendar",       label: "Event"   },
-  { id: "rundown", icon: "fa-clock",          label: "Rundown" },
-  { id: "dress",   icon: "fa-tshirt",         label: "Dress"   },
-  { id: "map",     icon: "fa-map-marker-alt", label: "Map"     },
-  { id: "gift",    icon: "fa-gift",           label: "Gift"    },
-  { id: "rsvp",    icon: "fa-check-circle",   label: "RSVP"    },
-  { id: "thanks",  icon: "fa-heart",          label: "Thanks"  },
+  { id: "intro", icon: "fa-envelope", label: "Intro" },
+  { id: "groom", icon: "fa-male", label: "Groom" },
+  { id: "bride", icon: "fa-female", label: "Bride" },
+  { id: "gallery", icon: "fa-images", label: "Gallery" },
+  { id: "event", icon: "fa-calendar", label: "Event" },
+  { id: "rundown", icon: "fa-clock", label: "Rundown" },
+  { id: "dress", icon: "fa-tshirt", label: "Dress" },
+  { id: "map", icon: "fa-map-marker-alt", label: "Map" },
+  { id: "gift", icon: "fa-gift", label: "Gift" },
+  { id: "rsvp", icon: "fa-check-circle", label: "RSVP" },
+  { id: "thanks", icon: "fa-heart", label: "Thanks" },
 ];
 const NAV_VISIBLE = 5;
 
@@ -49,7 +49,7 @@ const NAV_VISIBLE = 5;
 function PassportFooter() {
   return (
     <div
-      className="mt-auto pt-4 pb-3 px-5 border-t flex flex-col items-center gap-2 select-none"
+      className="mt-6 pt-4 pb-3 px-5 border-t flex flex-col items-center gap-2 select-none"
       style={{ borderColor: "#D8DDD5" }}
     >
       {/* MRZ-style strip */}
@@ -150,10 +150,11 @@ function Countdown() {
 }
 
 // ─── pages ────────────────────────────────────────────────────────────────────
-// KEY PATTERN: every page root = "flex flex-col h-full bg-[#FAF8F4]"
-// Short-content pages end with <PassportFooter /> which uses mt-auto to push to bottom
+// Each page is now a normal-flow section stacked in one continuous scroll —
+// no longer a full-height single screen. mt-auto blocks were removed since
+// there's no fixed-height flex parent to push against anymore.
 
-function HomePage({ onOpen }) {
+function HomePage({ onOpen, guestName, onShowQR }) {
   return (
     <div className="flex flex-col items-center justify-center h-full py-6 px-6 text-center" style={{ background: "#FAF8F4" }}>
       <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-4" style={{ color: "#7C8F78" }}>
@@ -183,7 +184,7 @@ function HomePage({ onOpen }) {
       >
         <p className="text-xs mb-1 font-mono tracking-wider" style={{ color: "#888" }}>KEPADA YTH.</p>
         <p className="text-xs" style={{ color: "#888" }}>Bapak / Ibu / Saudara/i</p>
-        <p className="font-mono font-bold text-sm mt-1 tracking-wide" style={{ color: "#566251" }}>✦ Nama Tamu ✦</p>
+        <p className="font-mono font-bold text-sm mt-1 tracking-wide" style={{ color: "#566251" }}>✦ {guestName} ✦</p>
       </div>
 
       <button
@@ -193,6 +194,15 @@ function HomePage({ onOpen }) {
       >
         Open Invitation
       </button>
+      <button
+        onClick={onShowQR}
+        className="mt-3 px-8 py-2.5 rounded-xl font-semibold tracking-wider text-xs transition-all active:scale-95 flex items-center gap-2"
+        style={{ border: "2px solid #7C8F78", color: "#566251", background: "transparent" }}
+      >
+        <i className="fas fa-qrcode text-xs" />
+        Lihat QR Kehadiran Saya
+      </button>
+
       <p className="text-[10px] mt-5 font-mono tracking-widest" style={{ color: "#ccc" }}>✈ VALID FOR ONE LIFETIME ✈</p>
     </div>
   );
@@ -200,9 +210,9 @@ function HomePage({ onOpen }) {
 
 function IntroPage() {
   return (
-    <div className="flex flex-col h-full" style={{ background: "#FAF8F4" }}>
+    <div className="flex flex-col" style={{ background: "#FAF8F4" }}>
       <PassportHeader />
-      <div className="p-5 text-center flex flex-col flex-1">
+      <div className="p-5 text-center flex flex-col">
         <img
           src={COUPLE_PHOTOS[0]}
           alt="couple"
@@ -219,7 +229,7 @@ function IntroPage() {
           </p>
           <p className="text-sm mt-3 italic text-center" style={{ color: "#7C8F78" }}>— Gyubin &amp; Victoria ♡</p>
         </div>
-        <div className="flex justify-between items-end mt-auto pt-3 px-2">
+        <div className="flex justify-between items-end pt-3 px-2">
           <Stamp text="MARRIED" />
           <Stamp text="LOVE APPROVED" color="pink" />
         </div>
@@ -231,10 +241,10 @@ function IntroPage() {
 
 function ProfilePage({ isGroom }) {
   return (
-    <div className="flex flex-col h-full p-3" style={{ background: "#FAF8F4" }}>
-      <div className="rounded-2xl overflow-hidden flex flex-col flex-1" style={{ border: "5px solid #7C8F78" }}>
+    <div className="flex flex-col p-3" style={{ background: "#FAF8F4" }}>
+      <div className="rounded-2xl overflow-hidden flex flex-col" style={{ border: "5px solid #7C8F78" }}>
         <PassportHeader />
-        <div className="p-4 flex flex-col flex-1">
+        <div className="p-4 flex flex-col">
           <p className="text-lg italic mb-3" style={{ fontFamily: "'Playfair Display', serif", color: "#566251" }}>Wedding Profile</p>
           <div className="rounded-xl overflow-hidden mb-3" style={{ border: "1px solid #D8DDD5" }}>
             <div className="flex gap-3 p-3" style={{ background: "#F5F7F4" }}>
@@ -244,7 +254,7 @@ function ProfilePage({ isGroom }) {
                 className="w-24 h-32 object-cover rounded-lg flex-shrink-0"
               />
               <div className="text-sm space-y-2 pt-1">
-                {[["Type","BRIDES"],["Code","LOVE"],["Passport No.", isGroom ? "14-12-2024" : "24-04-1998"]].map(([label, val]) => (
+                {[["Type", "BRIDES"], ["Code", "LOVE"], ["Passport No.", isGroom ? "14-12-2024" : "24-04-1998"]].map(([label, val]) => (
                   <div key={label}>
                     <p className="text-[9px] tracking-widest uppercase" style={{ color: "#aaa" }}>{label}</p>
                     <p className="font-semibold text-xs font-mono" style={{ color: "#444" }}>{val}</p>
@@ -258,9 +268,9 @@ function ProfilePage({ isGroom }) {
             {[
               ["Name", isGroom ? "GYUBIN KO" : "VICTORIA HASAN"],
               [isGroom ? "First Born Son of" : "Only Daughter of",
-               isGroom ? "Mr. Songgun Ko & Mrs. Kimia Ko" : "Mr. Sudarman & Mrs. Roeslina"],
+              isGroom ? "Mr. Songgun Ko & Mrs. Kimia Ko" : "Mr. Sudarman & Mrs. Roeslina"],
               ["Description",
-               isGroom ? "고송근, 김미아의 아들 고규빈" : "Sudarman, Roeslina 의 딸 빅토리아"],
+                isGroom ? "고송근, 김미아의 아들 고규빈" : "Sudarman, Roeslina 의 딸 빅토리아"],
             ].map(([label, val]) => (
               <div key={label}>
                 <p className="text-[9px] tracking-widest uppercase" style={{ color: "#aaa" }}>{label}</p>
@@ -268,7 +278,7 @@ function ProfilePage({ isGroom }) {
               </div>
             ))}
           </div>
-          <div className="flex justify-between items-center mt-auto pt-4">
+          <div className="flex justify-between items-center pt-4">
             <Stamp text="MARRIED" />
             <Stamp text="LOVE APPROVED" color="pink" />
           </div>
@@ -281,7 +291,7 @@ function ProfilePage({ isGroom }) {
 function GalleryPage() {
   const [selected, setSelected] = useState(null);
   return (
-    <div className="flex flex-col h-full p-4" style={{ background: "#FAF8F4" }}>
+    <div className="flex flex-col p-4" style={{ background: "#FAF8F4" }}>
       <p className="text-2xl italic text-center mb-4" style={{ fontFamily: "'Playfair Display', serif", color: "#566251" }}>
         Our Gallery
       </p>
@@ -309,7 +319,7 @@ function GalleryPage() {
 
 function EventPage() {
   return (
-    <div className="flex flex-col h-full p-5 text-center" style={{ background: "#FAF8F4" }}>
+    <div className="flex flex-col p-5 text-center" style={{ background: "#FAF8F4" }}>
       <div className="mb-3 flex justify-center">
         <Stamp text="LOVE APPROVED" color="pink" />
       </div>
@@ -329,7 +339,7 @@ function EventPage() {
       >
         Add to Calendar
       </button>
-      <div className="flex justify-between items-center mt-auto pt-5">
+      <div className="flex justify-between items-center pt-5">
         <Stamp text="MARRIED" />
         <Stamp text="LOVE APPROVED" color="pink" />
       </div>
@@ -346,13 +356,13 @@ function RundownPage() {
     { time: "19:00–End", title: "Dinner Reception", desc: "Celebration for the Groom and Bride becoming ONE! Dinner provided with many corners to enjoy." },
   ];
   return (
-    <div className="flex flex-col h-full" style={{ background: "#FAF8F4" }}>
+    <div className="flex flex-col" style={{ background: "#FAF8F4" }}>
       <WeddingPassHeader />
-      <div className="p-4 flex flex-col flex-1">
+      <div className="p-4 flex flex-col">
         <p className="text-2xl italic text-center mb-4" style={{ fontFamily: "'Playfair Display', serif", color: "#D4748A" }}>
           Event Rundown
         </p>
-        <div className="relative pl-5 flex-1">
+        <div className="relative pl-5">
           <div className="absolute left-2 top-2 bottom-2 w-px" style={{ background: "#D8DDD5" }} />
           {items.map((it, i) => (
             <div key={i} className="flex gap-3 mb-4 relative">
@@ -384,9 +394,9 @@ function DressPage() {
     { name: "Lilac", hex: "#C0A8C8" },
   ];
   return (
-    <div className="flex flex-col h-full" style={{ background: "#FAF8F4" }}>
+    <div className="flex flex-col" style={{ background: "#FAF8F4" }}>
       <WeddingPassHeader />
-      <div className="p-4 flex flex-col flex-1">
+      <div className="p-4 flex flex-col">
         <p className="text-2xl italic text-center mb-3" style={{ fontFamily: "'Playfair Display', serif", color: "#D4748A" }}>
           Dresscode
         </p>
@@ -424,7 +434,7 @@ function DressPage() {
 
 function MapPage() {
   return (
-    <div className="flex flex-col h-full" style={{ background: "#FAF8F4" }}>
+    <div className="flex flex-col" style={{ background: "#FAF8F4" }}>
       <div className="overflow-hidden flex-shrink-0" style={{ height: "220px", background: "#D8DDD5" }}>
         <iframe
           title="map" width="100%" height="100%"
@@ -432,7 +442,7 @@ function MapPage() {
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3944.9!2d115.228!3d-8.798!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd244dc3b4e7f7d%3A0x8e62c08c6b69f35a!2sConrad%20Bali!5e0!3m2!1sen!2sid!4v1620000000000"
         />
       </div>
-      <div className="p-5 text-center flex flex-col flex-1">
+      <div className="p-5 text-center flex flex-col">
         <p className="text-2xl italic mb-2" style={{ fontFamily: "'Playfair Display', serif", color: "#566251" }}>
           Conrad Bali
         </p>
@@ -455,9 +465,9 @@ function MapPage() {
 
 function GiftPage({ onCashless, onGift }) {
   return (
-    <div className="flex flex-col h-full" style={{ background: "#FAF8F4" }}>
+    <div className="flex flex-col" style={{ background: "#FAF8F4" }}>
       <PassportHeader />
-      <div className="flex flex-col items-center justify-center flex-1 py-6 px-5 text-center">
+      <div className="flex flex-col items-center justify-center py-6 px-5 text-center">
         <div
           className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
           style={{ background: "#F0F4EE", border: "1px solid #D8DDD5" }}
@@ -486,7 +496,7 @@ function GiftPage({ onCashless, onGift }) {
             <i className="fas fa-box" />Send Gift
           </button>
         </div>
-        <div className="flex justify-between w-full mt-auto pt-6">
+        <div className="flex justify-between w-full pt-6">
           <Stamp text="MARRIED" />
           <Stamp text="LOVE APPROVED" color="pink" />
         </div>
@@ -498,9 +508,9 @@ function GiftPage({ onCashless, onGift }) {
 
 function RSVPPage({ wishes, onRSVP }) {
   return (
-    <div className="flex flex-col h-full" style={{ background: "#FAF8F4" }}>
+    <div className="flex flex-col" style={{ background: "#FAF8F4" }}>
       <WeddingPassHeader />
-      <div className="p-4 flex flex-col flex-1">
+      <div className="p-4 flex flex-col">
         <div className="relative rounded-xl overflow-hidden mb-4 flex-shrink-0" style={{ height: "170px" }}>
           <img src={COUPLE_PHOTOS[1]} alt="couple" className="w-full h-full object-cover" />
           <div className="absolute inset-0 flex items-end p-4" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.5), transparent)" }}>
@@ -517,7 +527,7 @@ function RSVPPage({ wishes, onRSVP }) {
         <p className="text-xs text-center mb-3 font-mono tracking-wider" style={{ color: "#aaa" }}>
           WISHES & ATTENDANCE
         </p>
-        <div className="space-y-2 flex-1">
+        <div className="space-y-2">
           {wishes.map((w, i) => (
             <div key={i} className="rounded-xl p-3" style={{ border: "1px solid #D8DDD5", background: "#F5F7F4" }}>
               <div className="flex justify-between items-center mb-1">
@@ -549,9 +559,9 @@ function RSVPPage({ wishes, onRSVP }) {
 
 function ThanksPage() {
   return (
-    <div className="flex flex-col h-full" style={{ background: "#FAF8F4" }}>
+    <div className="flex flex-col" style={{ background: "#FAF8F4" }}>
       <PassportHeader />
-      <div className="flex flex-col items-center justify-center flex-1 py-8 px-6 text-center">
+      <div className="flex flex-col items-center justify-center py-8 px-6 text-center">
         <div
           className="w-20 h-20 rounded-full flex items-center justify-center mb-5"
           style={{ background: "#FDF0EE", border: "1px solid #F0C8C0" }}
@@ -577,7 +587,7 @@ function ThanksPage() {
             Violin &amp; Piano cover
           </p>
         </div>
-        <div className="flex justify-between w-full mt-auto pt-5">
+        <div className="flex justify-between w-full pt-5">
           <Stamp text="MARRIED" />
           <Stamp text="LOVE APPROVED" color="pink" />
         </div>
@@ -627,7 +637,7 @@ function Input({ label, placeholder, value, onChange }) {
 function CashlessModal({ onClose }) {
   const [copied, setCopied] = useState(null);
   const copy = (text, idx) => {
-    navigator.clipboard?.writeText(text).catch(() => {});
+    navigator.clipboard?.writeText(text).catch(() => { });
     setCopied(idx);
     setTimeout(() => setCopied(null), 1500);
   };
@@ -730,43 +740,27 @@ function RSVPModal({ onClose, onSubmit }) {
   );
 }
 
+// Real, guest-specific QR code (was a static decorative SVG before — now every
+// guest link produces a different code via the QR image API).
 function QRModal({ name, onClose }) {
+  const guest = name || "Wedding Guest";
+  const payload = `Wedding Pass: Gyubin & Victoria\nGuest: ${guest}\nDate: 14 Dec 2024\nCode: ${btoa(unescape(encodeURIComponent(guest))).slice(0, 10)}`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&color=566251&bgcolor=F5F7F4&data=${encodeURIComponent(payload)}`;
+
   return (
     <ModalShell onClose={onClose} title="Wedding Pass QR">
       <div className="flex flex-col items-center gap-3 py-2">
         <div
-          className="w-40 h-40 rounded-xl flex items-center justify-center"
+          className="w-44 h-44 rounded-xl flex items-center justify-center overflow-hidden"
           style={{ border: "4px solid #7C8F78", background: "#F5F7F4" }}
         >
-          <svg viewBox="0 0 100 100" className="w-32 h-32">
-            <rect x={5} y={5} width={35} height={35} fill="none" stroke="#566251" strokeWidth="3" />
-            <rect x={12} y={12} width={21} height={21} fill="#566251" />
-            <rect x={60} y={5} width={35} height={35} fill="none" stroke="#566251" strokeWidth="3" />
-            <rect x={67} y={12} width={21} height={21} fill="#566251" />
-            <rect x={5} y={60} width={35} height={35} fill="none" stroke="#566251" strokeWidth="3" />
-            <rect x={12} y={67} width={21} height={21} fill="#566251" />
-            <rect x={45} y={45} width={7} height={7} fill="#566251" />
-            <rect x={57} y={45} width={7} height={7} fill="#566251" />
-            <rect x={69} y={45} width={7} height={7} fill="#566251" />
-            <rect x={81} y={45} width={7} height={7} fill="#566251" />
-            <rect x={45} y={57} width={7} height={7} fill="#566251" />
-            <rect x={69} y={57} width={7} height={7} fill="#566251" />
-            <rect x={45} y={69} width={7} height={7} fill="#566251" />
-            <rect x={57} y={69} width={14} height={7} fill="#566251" />
-            <rect x={81} y={69} width={7} height={7} fill="#566251" />
-            <rect x={57} y={81} width={7} height={7} fill="#566251" />
-            <rect x={75} y={81} width={13} height={7} fill="#566251" />
-          </svg>
+          <img src={qrUrl} alt="QR Code Kehadiran" width={190} height={190} />
         </div>
-        <p className="text-sm font-semibold" style={{ color: "#566251" }}>{name || "Wedding Guest"}</p>
+        <p className="text-sm font-semibold" style={{ color: "#566251" }}>{guest}</p>
         <p className="text-xs font-mono" style={{ color: "#aaa" }}>Wedding Pass · 14 Dec 2024</p>
-        <button
-          onClick={onClose}
-          className="w-full py-2.5 rounded-xl text-sm font-semibold transition mt-1"
-          style={{ border: "2px solid #7C8F78", color: "#566251", background: "transparent" }}
-        >
-          <i className="fas fa-download mr-2" />Download Pass
-        </button>
+        <p className="text-xs text-center leading-relaxed px-2" style={{ color: "#888" }}>
+          Kode ini unik untuk Anda. Tunjukkan QR ini kepada petugas saat check-in di lokasi acara.
+        </p>
       </div>
     </ModalShell>
   );
@@ -820,65 +814,78 @@ function MusicBar({ playing, muted, onTogglePlay, onToggleMute, song }) {
 }
 
 // ─── nav bar ─────────────────────────────────────────────────────────────────
-function NavBar({ visibleNav, page, onNav, mobile }) {
-  return (
-    <nav
-      className="flex items-center justify-between flex-shrink-0"
-      style={{
-        background: "#E7CDC8",
-        padding: mobile
-          ? `6px 4px calc(6px + env(safe-area-inset-bottom, 0px))`
-          : "6px 8px",
-        gap: "2px",
-      }}
-    >
-      {visibleNav.map(n => (
-        <button
-          key={n.id}
-          onClick={() => onNav(n.id)}
-          className="flex flex-col items-center gap-0.5 flex-1 transition-all"
-          style={{
-            padding: "6px 4px",
-            fontSize: mobile ? "9px" : "10px",
-            color: page === n.id ? "white" : "#8D6060",
-            background: page === n.id ? "#7C8F78" : "transparent",
-            borderRadius: page === n.id ? "10px" : "0",
-            fontWeight: 500,
-          }}
-        >
-          <i className={`fas ${n.icon}`} style={{ fontSize: mobile ? "13px" : "14px" }} />
-          <span style={{ lineHeight: 1 }}>{n.label}</span>
-        </button>
-      ))}
-    </nav>
-  );
-}
+// function NavBar({ visibleNav, page, onNav, mobile }) {
+//   return (
+//     <nav
+//       className="flex items-center justify-between flex-shrink-0"
+//       style={{
+//         background: "#E7CDC8",
+//         padding: mobile
+//           ? `6px 4px calc(6px + env(safe-area-inset-bottom, 0px))`
+//           : "6px 8px",
+//         gap: "2px",
+//       }}
+//     >
+//       {visibleNav.map(n => (
+//         <button
+//           key={n.id}
+//           onClick={() => onNav(n.id)}
+//           className="flex flex-col items-center gap-0.5 flex-1 transition-all"
+//           style={{
+//             padding: "6px 4px",
+//             fontSize: mobile ? "9px" : "10px",
+//             color: page === n.id ? "white" : "#8D6060",
+//             background: page === n.id ? "#7C8F78" : "transparent",
+//             borderRadius: page === n.id ? "10px" : "0",
+//             fontWeight: 500,
+//           }}
+//         >
+//           <i className={`fas ${n.icon}`} style={{ fontSize: mobile ? "13px" : "14px" }} />
+//           <span style={{ lineHeight: 1 }}>{n.label}</span>
+//         </button>
+//       ))}
+//     </nav>
+//   );
+// }
 
 // ─── inner shell used by both desktop card and mobile ────────────────────────
-// This is the opened-state layout: scroll only in the page area
-function InnerShell({ page, renderPage, visibleNav, onNav, playing, muted, onTogglePlay, onToggleMute, mobile }) {
+// Now renders ALL sections stacked in one continuous scroll — the nav bar
+// scrolls to the section instead of switching pages, so the guest only
+// scrolls instead of tapping through many screens.
+function InnerShell({ activePage, setActivePage, getPageContent, visibleNav, onNav, playing, muted, onTogglePlay, onToggleMute, mobile }) {
+  const refs = useRef({});
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActivePage(entry.target.id);
+        });
+      },
+      { rootMargin: "-35% 0px -50% 0px", threshold: 0 }
+    );
+    NAV.forEach((n) => {
+      const el = refs.current[n.id];
+      if (el) obs.observe(el);
+    });
+    return () => obs.disconnect();
+  }, [setActivePage]);
+
   return (
-    // outer: fills the card/screen — NO overflow here
     <div style={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden", minHeight: 0 }}>
-      {/* page area: only this scrolls, and only when content is taller than available space */}
-      <div
-        key={page}
-        className="page-fade scroll-none"
-        style={{ flex: 1, overflowY: "auto", minHeight: 0 }}
-      >
-        {/* page root must be h-full so it stretches to fill when content is short */}
-        <div style={{ minHeight: "100%", display: "flex", flexDirection: "column" }}>
-          {renderPage()}
-        </div>
+      <div className="scroll-none" style={{ flex: 1, overflowY: "auto", minHeight: 0 }}>
+        {NAV.map((n) => (
+          <div key={n.id} id={n.id} ref={(el) => (refs.current[n.id] = el)}>
+            {getPageContent(n.id)}
+          </div>
+        ))}
       </div>
-      {/* music bar — always visible, never scrolls */}
       <MusicBar
         playing={playing} muted={muted}
         onTogglePlay={onTogglePlay} onToggleMute={onToggleMute}
         song="IU – Love Wins All (Violin & Piano)"
       />
-      {/* nav — always visible, never scrolls */}
-      <NavBar visibleNav={visibleNav} page={page} onNav={onNav} mobile={mobile} />
+      {/* <NavBar visibleNav={visibleNav} page={activePage} onNav={onNav} mobile={mobile} /> */}
     </div>
   );
 }
@@ -886,28 +893,53 @@ function InnerShell({ page, renderPage, visibleNav, onNav, playing, muted, onTog
 // ─── main app ─────────────────────────────────────────────────────────────────
 export default function Passport() {
   const [opened, setOpened] = useState(false);
-  const [page, setPage] = useState("intro");
+  const [activePage, setActivePage] = useState("intro");
   const [modal, setModal] = useState(null);
   const [wishes, setWishes] = useState(INITIAL_WISHES);
   const [qrName, setQrName] = useState("");
+  const [guestName, setGuestName] = useState("Nama Tamu");
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
   const audioRef = useRef(null);
 
-  const pageIdx = NAV.findIndex(n => n.id === page);
-  const navStart = Math.max(0, Math.min(pageIdx - Math.floor(NAV_VISIBLE / 2), NAV.length - NAV_VISIBLE));
+  // Read guest name from the invitation link, e.g. ?to=Budi+Santoso
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const to = params.get("to") || params.get("nama");
+      if (to && to.trim()) setGuestName(to.trim());
+    } catch (e) {
+      /* no query params available */
+    }
+  }, []);
+
+  const [navStart, setNavStart] = useState(0);
+  const pageIdx = NAV.findIndex(n => n.id === activePage);
+  // Window only shifts once the active icon walks off either edge — it slides
+  // over one-by-one like a normal tab strip instead of jumping to re-center.
+  useEffect(() => {
+    setNavStart(prev => {
+      if (pageIdx < prev) return pageIdx;
+      if (pageIdx > prev + NAV_VISIBLE - 1) return pageIdx - NAV_VISIBLE + 1;
+      return prev;
+    });
+  }, [pageIdx]);
   const visibleNav = NAV.slice(navStart, navStart + NAV_VISIBLE);
 
   const handleOpen = () => {
     setOpened(true);
-    setPage("intro");
-    audioRef.current?.play().then(() => setPlaying(true)).catch(() => {});
+    setActivePage("intro");
+    audioRef.current?.play().then(() => setPlaying(true)).catch(() => { });
+  };
+  const handleShowQR = () => {
+    setQrName(guestName);
+    setModal("qr");
   };
   const togglePlay = () => {
     const a = audioRef.current;
     if (!a) return;
     if (playing) { a.pause(); setPlaying(false); }
-    else { a.play().catch(() => {}); setPlaying(true); }
+    else { a.play().catch(() => { }); setPlaying(true); }
   };
   const toggleMute = () => {
     const a = audioRef.current;
@@ -920,26 +952,29 @@ export default function Passport() {
     setQrName(form.name);
     setModal("qr");
   };
+  const scrollToSection = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
-  const renderPage = () => {
-    switch (page) {
-      case "intro":   return <IntroPage />;
-      case "groom":   return <ProfilePage isGroom />;
-      case "bride":   return <ProfilePage isGroom={false} />;
+  const getPageContent = (id) => {
+    switch (id) {
+      case "intro": return <IntroPage />;
+      case "groom": return <ProfilePage isGroom />;
+      case "bride": return <ProfilePage isGroom={false} />;
       case "gallery": return <GalleryPage />;
-      case "event":   return <EventPage />;
+      case "event": return <EventPage />;
       case "rundown": return <RundownPage />;
-      case "dress":   return <DressPage />;
-      case "map":     return <MapPage />;
-      case "gift":    return <GiftPage onCashless={() => setModal("cashless")} onGift={() => setModal("gift")} />;
-      case "rsvp":    return <RSVPPage wishes={wishes} onRSVP={() => setModal("rsvp")} />;
-      case "thanks":  return <ThanksPage />;
-      default:        return <IntroPage />;
+      case "dress": return <DressPage />;
+      case "map": return <MapPage />;
+      case "gift": return <GiftPage onCashless={() => setModal("cashless")} onGift={() => setModal("gift")} />;
+      case "rsvp": return <RSVPPage wishes={wishes} onRSVP={() => setModal("rsvp")} />;
+      case "thanks": return <ThanksPage />;
+      default: return null;
     }
   };
 
   const commonShellProps = {
-    page, renderPage, visibleNav, onNav: setPage,
+    activePage, setActivePage, getPageContent, visibleNav, onNav: scrollToSection,
     playing, muted, onTogglePlay: togglePlay, onToggleMute: toggleMute,
   };
 
@@ -952,8 +987,6 @@ export default function Passport() {
         #root { height: 100%; }
         .scroll-none::-webkit-scrollbar { display: none; }
         .scroll-none { -ms-overflow-style: none; scrollbar-width: none; }
-        .page-fade { animation: fadeIn .3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
         @keyframes barBounce { 0%,100% { transform: scaleY(0.4); } 50% { transform: scaleY(1); } }
         .animate-bar { transform-origin: bottom; animation: barBounce 0.8s ease-in-out infinite; }
       `}</style>
@@ -990,7 +1023,7 @@ export default function Passport() {
           }}
         >
           {!opened
-            ? <HomePage onOpen={handleOpen} />
+            ? <HomePage onOpen={handleOpen} guestName={guestName} onShowQR={handleShowQR} />
             : <InnerShell {...commonShellProps} mobile={false} />
           }
         </div>
@@ -1016,15 +1049,15 @@ export default function Passport() {
         }}
       >
         {!opened
-          ? <HomePage onOpen={handleOpen} />
+          ? <HomePage onOpen={handleOpen} guestName={guestName} onShowQR={handleShowQR} />
           : <InnerShell {...commonShellProps} mobile={true} />
         }
       </div>
 
       {modal === "cashless" && <CashlessModal onClose={() => setModal(null)} />}
-      {modal === "gift"     && <GiftModal     onClose={() => setModal(null)} />}
-      {modal === "rsvp"     && <RSVPModal     onClose={() => setModal(null)} onSubmit={submitRSVP} />}
-      {modal === "qr"       && <QRModal       name={qrName} onClose={() => setModal(null)} />}
+      {modal === "gift" && <GiftModal onClose={() => setModal(null)} />}
+      {modal === "rsvp" && <RSVPModal onClose={() => setModal(null)} onSubmit={submitRSVP} />}
+      {modal === "qr" && <QRModal name={qrName} onClose={() => setModal(null)} />}
     </>
   );
 }

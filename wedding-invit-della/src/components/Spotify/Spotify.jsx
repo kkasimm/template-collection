@@ -170,6 +170,48 @@ function SpotifyLogo({ size = 40, heart = false }) {
   );
 }
 
+// ─── Guest QR Code Modal ───────────────────────────────────────────────────────
+function QRModal({ guestName, onClose }) {
+  // Unique payload per guest, so every invitation link produces its own QR
+  const payload = `The Wedding Of Indra & Yurita\nTamu: ${guestName}\nTanggal: 23 November 2028\nKode: ${btoa(unescape(encodeURIComponent(guestName))).slice(0, 10)}`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=230x230&margin=8&color=121212&bgcolor=ffffff&data=${encodeURIComponent(payload)}`;
+
+  return (
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-[999] bg-black/80 flex items-center justify-center p-5"
+      style={{ animation: "qrFadeIn .2s ease" }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-xs bg-[#181818] border border-[#2a2a2a] rounded-3xl px-6 py-8 text-center"
+        style={{ animation: "qrModalIn .28s ease" }}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-4 text-[#b3b3b3] hover:text-white text-lg leading-none"
+        >
+          ✕
+        </button>
+
+        <div className="flex justify-center mb-4">
+          <SpotifyLogo size={36} />
+        </div>
+        <p className="text-green-500 text-[10px] font-bold tracking-widest uppercase mb-1">QR Kehadiran</p>
+        <p className="text-white font-extrabold text-lg mb-5">{guestName}</p>
+
+        <div className="bg-white rounded-2xl p-3 inline-block">
+          <img src={qrUrl} alt="QR Code Kehadiran" width={200} height={200} className="block rounded" />
+        </div>
+
+        <p className="text-[#b3b3b3] text-xs leading-relaxed mt-5">
+          Kode ini unik untuk Anda. Mohon tunjukkan QR ini kepada petugas saat check-in di lokasi acara.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ─── Sticky Music Player Bar ──────────────────────────────────────────────────
 function StickyPlayer({ playing, onToggle, onToggleMute, muted }) {
   return (
@@ -313,10 +355,11 @@ export default function Spotify() {
   const [opened, setOpened] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
-  const [guestName] = useState("Nama Tamu");
+  const [guestName, setGuestName] = useState("Nama Tamu");
   const [rsvp, setRsvp] = useState({ name: "", message: "", attend: "hadir" });
   const [submitted, setSubmitted] = useState(false);
   const [showVinyl, setShowVinyl] = useState(false);
+  const [showQR, setShowQR] = useState(false);
   const audioRef = useRef(null);
   const countdown = useCountdown("2028-11-23T08:00:00");
 
@@ -336,6 +379,17 @@ export default function Spotify() {
     audioRef.current.muted = muted;
   }, [muted]);
 
+  // Read guest name from the invitation link, e.g. ?to=Budi+Santoso
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const to = params.get("to") || params.get("nama");
+      if (to && to.trim()) setGuestName(to.trim());
+    } catch (e) {
+      /* no query params available */
+    }
+  }, []);
+
   const handleOpen = () => {
     setOpened(true);
     setPlaying(true);
@@ -350,6 +404,10 @@ export default function Spotify() {
   if (!opened) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center font-sans">
+        <style>{`
+          @keyframes qrFadeIn{from{opacity:0}to{opacity:1}}
+          @keyframes qrModalIn{from{opacity:0;transform:scale(.92) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+        `}</style>
         <div className="w-full max-w-sm mx-auto px-8 py-16 flex flex-col items-center text-center">
           <div className="w-40 h-40 flex items-center justify-center mb-10">
             {!showVinyl ? (
@@ -386,11 +444,16 @@ export default function Spotify() {
             <SpotifyLogo size={22} />
             Open Invitation
           </button>
-          <button className="w-full flex items-center justify-center gap-2 border border-[#555] text-white py-3 rounded-full text-sm hover:border-white transition">
-            <i className="fas fa-play text-xs" />
-            Konfirmasi Kehadiran
+          <button
+            onClick={() => setShowQR(true)}
+            className="w-full flex items-center justify-center gap-2 border border-[#555] text-green-500 py-3 rounded-full text-sm hover:border-green-500 hover:bg-green-500/5 transition"
+          >
+            <i className="fas fa-qrcode text-xs" />
+            Lihat QR Kehadiran Saya
           </button>
         </div>
+
+        {showQR && <QRModal guestName={guestName} onClose={() => setShowQR(false)} />}
       </div>
     );
   }
